@@ -1,0 +1,95 @@
+<header class="saas-header" data-testid="main-header">
+  <div class="header-inner">
+    <!-- Left: Mobile Menu Toggle & Breadcrumbs -->
+    <div class="header-left">
+      <button
+        type="button"
+        class="mobile-drawer-toggle mobile-only"
+        (click)="toggleMobileMenu()"
+        aria-label="Toggle navigation drawer"
+      >
+        <svg lucideMenu [size]="20" [strokeWidth]="2"></svg>
+      </button>
+
+      <div class="breadcrumb-trail">
+        <span class="crumb-section">{{ pageMeta().section }}</span>
+        <span class="crumb-separator">/</span>
+        <h1 class="crumb-title">{{ pageMeta().title }}</h1>
+      </div>
+    </div>
+
+    <!-- Center/Right: Search, Date, Notifications, Actions, Profile -->
+    <div class="header-right">
+      <!-- Search Input -->
+      <div class="header-search-wrap desktop-only">
+        <svg lucideSearch [size]="16" [strokeWidth]="1.8" class="search-icon"></svg>
+        <input
+          type="text"
+          class="header-search-input"
+          placeholder="Search grievance no., mandal, applicant..."
+          routerLink="/dashboard"
+        />
+        <kbd class="search-shortcut">⌘K</kbd>
+      </div>
+
+      <!-- Live Date Display -->
+      <div class="header-date-badge desktop-only">
+        <svg lucideCalendarDays [size]="15" [strokeWidth]="1.85"></svg>
+        <span>{{ currentDate }}</span>
+      </div>
+
+      <!-- Quick Action: Track Grievance -->
+      <a routerLink="/tracking" class="btn btn-sm btn-secondary track-action-btn" title="Track grievance application status">
+        <svg lucideSearch [size]="14" [strokeWidth]="2"></svg>
+        <span>Track Grievance</span>
+      </a>
+
+      <!-- Notifications Bell -->
+      <a routerLink="/notifications" class="header-icon-btn" title="View SMS & IVRS Notifications">
+        <svg lucideBellRing [size]="18" [strokeWidth]="1.85"></svg>
+        <span class="bell-pulse-badge"></span>
+      </a>
+
+      <!-- User Profile / Auth Area -->
+      @if (authService.isAuthenticated()) {
+        <div class="profile-dropdown-wrapper">
+          <button type="button" class="profile-trigger-btn" (click)="toggleProfileMenu()">
+            <div class="avatar-circle">
+              {{ (authService.currentUser()?.name || 'R').charAt(0) }}
+            </div>
+            <div class="user-pill-text desktop-only">
+              <span class="user-pill-name">{{ authService.currentUser()?.name || 'Administrator' }}</span>
+              <span class="user-pill-role">{{ authService.currentUser()?.role || 'RDO' }}</span>
+            </div>
+            <svg lucideChevronDown [size]="14" [strokeWidth]="2" class="desktop-only dropdown-arrow"></svg>
+          </button>
+
+          @if (profileMenuOpen()) {
+            <div class="profile-menu-popover">
+              <div class="popover-header">
+                <p class="popover-user-name">{{ authService.currentUser()?.name }}</p>
+                <p class="popover-user-email">{{ authService.currentUser()?.email || 'rdo.bheemili@ap.gov.in' }}</p>
+                <span class="popover-badge">{{ authService.currentUser()?.role }}</span>
+              </div>
+              <div class="popover-links">
+                <a routerLink="/settings" class="popover-item" (click)="profileMenuOpen.set(false)">
+                  <svg lucideSlidersHorizontal [size]="15" [strokeWidth]="1.8"></svg>
+                  <span>Division Settings</span>
+                </a>
+                <button type="button" class="popover-item item-logout" (click)="logout()">
+                  <svg lucideLogOut [size]="15" [strokeWidth]="1.8"></svg>
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <a routerLink="/auth/login" class="btn btn-sm btn-primary login-action-btn">
+          <svg lucideLogIn [size]="15" [strokeWidth]="2"></svg>
+          <span>Official Login</span>
+        </a>
+      }
+    </div>
+  </div>
+</header>

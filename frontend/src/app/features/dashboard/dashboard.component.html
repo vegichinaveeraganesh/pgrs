@@ -1,0 +1,396 @@
+<section id="dashboard" class="dashboard-page" data-testid="dashboard-section">
+  <div class="gov-container">
+    <!-- 1. Top Hero Command Banner -->
+    <div class="dashboard-hero-card">
+      <div class="hero-left">
+        <div class="hero-tag">
+          <svg lucideShieldCheck [size]="15" [strokeWidth]="2"></svg>
+          <span>Division Command Center · Bhimunipatnam Division</span>
+        </div>
+        <h1 class="hero-title">RDO Grievance Redressal Dashboard</h1>
+        <p class="hero-subtitle">
+          Real-time oversight across Bheemunipatnam, Padmanabham, and Anandapuram mandals with automated VRO dispatch.
+        </p>
+      </div>
+
+      <div class="hero-actions">
+        <button
+          type="button"
+          class="btn btn-secondary sync-btn"
+          (click)="onSyncPgrs()"
+          [disabled]="isSyncing()"
+          data-testid="sync-pgrs-btn"
+        >
+          <svg lucideRefreshCw [size]="16" [strokeWidth]="2" [class.spin]="isSyncing()"></svg>
+          <span>{{ isSyncing() ? 'Syncing...' : 'Sync PGRS' }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary export-btn"
+          (click)="exportCsv()"
+          title="Export grievances to CSV"
+        >
+          <svg lucideFileDown [size]="16" [strokeWidth]="2"></svg>
+          <span>Export CSV</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary new-btn"
+          (click)="openCreateModal()"
+          data-testid="register-grievance-btn"
+        >
+          <svg lucidePlus [size]="17" [strokeWidth]="2.2"></svg>
+          <span>Register Grievance</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Row of 5 Bento Stat Cards -->
+    @if (summary()) {
+      <div class="bento-stats-row">
+        <app-stat-card
+          title="Total Grievances"
+          [value]="summary()!.total"
+          subtitle="All received applications"
+          icon="📋"
+          tone="lavender"
+        ></app-stat-card>
+
+        <app-stat-card
+          title="Under Process"
+          [value]="summary()!.active"
+          subtitle="Assigned to VRO / Tahsildar"
+          icon="⏳"
+          tone="blue"
+        ></app-stat-card>
+
+        <app-stat-card
+          title="Resolved"
+          [value]="summary()!.resolved"
+          subtitle="Official endorsement issued"
+          icon="✅"
+          tone="emerald"
+        ></app-stat-card>
+
+        <app-stat-card
+          title="Beyond SLA"
+          [value]="summary()!.beyond_sla"
+          subtitle="Overdue resolution deadline"
+          icon="🚨"
+          tone="red"
+        ></app-stat-card>
+
+        <app-stat-card
+          title="Citizen Satisfaction"
+          [value]="summary()!.satisfaction + ' ★'"
+          [subtitle]="summary()!.feedback_count + ' citizen IVRS ratings'"
+          icon="⭐"
+          tone="gold"
+        ></app-stat-card>
+      </div>
+    }
+
+    <!-- 3. Asymmetric Bento Grid: Mandal Analytics & Category Breakdown -->
+    @if (summary()) {
+      <div class="bento-middle-grid">
+        <!-- Card 1: Mandal-wise Analytics Widget -->
+        <div class="bento-card bento-mandal-card">
+          <div class="card-header-row">
+            <div>
+              <h3 class="card-title">Mandal-wise Grievance Volume</h3>
+              <p class="card-desc">Geographic distribution across the 3 revenue mandals</p>
+            </div>
+            <span class="pill-mandal-count">3 Mandals Active</span>
+          </div>
+
+          <div class="mandal-bars-list">
+            @for (m of mandalBreakdown(); track m.name) {
+              <div class="mandal-progress-item">
+                <div class="mandal-label-row">
+                  <div class="mandal-name-wrap">
+                    <svg lucideMapPin [size]="14" [strokeWidth]="2" class="pin-icon"></svg>
+                    <span class="mandal-name">{{ m.name }}</span>
+                  </div>
+                  <div class="mandal-stat-numbers">
+                    <span class="mandal-count-bold">{{ m.count }} grievances</span>
+                    <span class="mandal-percentage">({{ m.percentage }}%)</span>
+                  </div>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-bar-fill" [style.width.%]="m.percentage"></div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Card 2: Category Breakdown Widget -->
+        <div class="bento-card bento-category-card">
+          <div class="card-header-row">
+            <div>
+              <h3 class="card-title">Category Distribution</h3>
+              <p class="card-desc">Grievance classification by department type</p>
+            </div>
+            <svg lucideChartNoAxesCombined [size]="18" [strokeWidth]="2" class="accent-icon"></svg>
+          </div>
+
+          <div class="category-chips-wrap">
+            @for (cat of categoryBreakdown(); track cat.name) {
+              <div class="category-chip-item">
+                <span class="cat-name">{{ cat.name }}</span>
+                <span class="cat-count-badge">{{ cat.count }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- 4. Beyond-SLA Escalation Alert Panel -->
+    @if (summary() && summary()!.beyond_sla_list && summary()!.beyond_sla_list.length > 0) {
+      <div class="alert-bento-panel" data-testid="sla-alerts-panel">
+        <div class="alert-panel-top">
+          <div class="alert-badge-pill">
+            <svg lucideTriangleAlert [size]="16" [strokeWidth]="2.2"></svg>
+            <span>{{ summary()!.beyond_sla_list.length }} Urgent Beyond-SLA Grievances</span>
+          </div>
+          <span class="alert-hint-text">15-Day statutory SLA crossed · Requires immediate RDO intervention</span>
+        </div>
+
+        <div class="alert-cards-grid">
+          @for (alert of summary()!.beyond_sla_list; track alert.pgrs_no) {
+            <div class="alert-item-card" (click)="openApplication(alert)" [attr.data-testid]="'sla-alert-' + alert.pgrs_no">
+              <div class="alert-card-header">
+                <span class="alert-pgrs-no">{{ alert.pgrs_no }}</span>
+                <span class="alert-status-pill">{{ alert.sla.label }}</span>
+              </div>
+              <h4 class="alert-subject">{{ alert.subject }}</h4>
+              <p class="alert-meta-details">
+                <strong>{{ alert.applicant_name }}</strong> · {{ alert.village }}, {{ alert.mandal }} · Tahsildar: {{ alert.tahsildar?.name || '-' }}
+              </p>
+              <div class="alert-card-footer">
+                <button type="button" class="btn btn-sm btn-danger resolve-btn">
+                  Resolve &amp; Endorse →
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- 5. Enterprise Grievance Management Table -->
+    <div class="enterprise-table-container">
+      <div class="table-header-toolbar">
+        <div class="toolbar-left">
+          <h2 class="table-title">Grievance Applications</h2>
+          <span class="table-subtitle">Live registry of all citizen petitions and enquiry workflow</span>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="toolbar-filters">
+          <!-- Search Input -->
+          <div class="table-search-box">
+            <svg lucideSearch [size]="15" [strokeWidth]="1.8" class="table-search-icon"></svg>
+            <input
+              type="text"
+              class="table-search-input"
+              placeholder="Search PGRS No., applicant, subject..."
+              [ngModel]="filterSearch()"
+              (ngModelChange)="filterSearch.set($event); onFilterChange()"
+              data-testid="filter-search-input"
+            />
+          </div>
+
+          <!-- Mandal Filter -->
+          <select
+            class="filter-select-pill"
+            [ngModel]="filterMandal()"
+            (ngModelChange)="filterMandal.set($event); onFilterChange()"
+            data-testid="filter-mandal-select"
+          >
+            <option value="">All Mandals</option>
+            @for (m of mandals; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+
+          <!-- Stage Filter -->
+          <select
+            class="filter-select-pill"
+            [ngModel]="filterStage()"
+            (ngModelChange)="filterStage.set($event); onFilterChange()"
+            data-testid="filter-stage-select"
+          >
+            <option value="">All Stages</option>
+            @for (s of stageOptions; track s) {
+              <option [value]="s">{{ stageMeta[s].label }}</option>
+            }
+          </select>
+
+          <!-- SLA Filter -->
+          <select
+            class="filter-select-pill"
+            [ngModel]="filterSla()"
+            (ngModelChange)="filterSla.set($event); onFilterChange()"
+            data-testid="filter-sla-select"
+          >
+            <option value="">All SLA Status</option>
+            @for (opt of slaOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-scroll-wrap">
+        <table class="saas-data-table" data-testid="grievances-table">
+          <thead>
+            <tr>
+              <th>Grievance No. &amp; Date</th>
+              <th>Applicant &amp; Village</th>
+              <th>Mandal</th>
+              <th>Category &amp; Subject</th>
+              <th>Assigned Officers</th>
+              <th>Current Stage</th>
+              <th>SLA Status</th>
+              <th class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (isLoading()) {
+              <tr>
+                <td colspan="8" class="empty-table-state">
+                  <div class="table-loading-spinner">Loading grievances registry...</div>
+                </td>
+              </tr>
+            } @else if (applications().length === 0) {
+              <tr>
+                <td colspan="8" class="empty-table-state">
+                  No grievances match the selected filters.
+                </td>
+              </tr>
+            } @else {
+              @for (app of applications(); track app.pgrs_no) {
+                <tr
+                  class="saas-table-row"
+                  (click)="openApplication(app)"
+                  [attr.data-testid]="'application-row-' + app.pgrs_no"
+                >
+                  <td class="cell-id">
+                    <span class="pgrs-no-badge">{{ app.pgrs_no }}</span>
+                    <span class="date-sub">{{ app.created_at | formatDate }}</span>
+                  </td>
+                  <td class="cell-applicant">
+                    <span class="applicant-bold">{{ app.applicant_name }}</span>
+                    <span class="village-sub">{{ app.village }}</span>
+                  </td>
+                  <td>
+                    <span class="mandal-pill-tag">{{ app.mandal }}</span>
+                  </td>
+                  <td class="cell-subject">
+                    <span class="category-tag">{{ app.category }}</span>
+                    <p class="subject-snippet">{{ app.subject }}</p>
+                  </td>
+                  <td class="cell-officer">
+                    <span class="vro-tag">VRO: {{ app.vro?.name || 'Unassigned' }}</span>
+                    <span class="tah-tag">Tah: {{ app.tahsildar?.name || 'Unassigned' }}</span>
+                  </td>
+                  <td>
+                    <app-status-badge [stage]="app.stage"></app-status-badge>
+                  </td>
+                  <td>
+                    <app-status-badge [sla]="app.sla.status" [customLabel]="app.sla.label"></app-status-badge>
+                  </td>
+                  <td class="text-right" (click)="$event.stopPropagation()">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-secondary view-row-btn"
+                      (click)="openApplication(app)"
+                    >
+                      <svg lucideEye [size]="14" [strokeWidth]="2"></svg>
+                      <span>View</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 6. Automated Communication Dispatch Logs -->
+    <div class="dispatch-section-card">
+      <div class="dispatch-header-row">
+        <div>
+          <h3 class="dispatch-title">Automated Communication Dispatch Logs</h3>
+          <p class="dispatch-subtitle">SMS &amp; IVRS real-time notifications to applicants and assigned field officers</p>
+        </div>
+        <div class="dispatch-badge">
+          <svg lucideMessageSquareText [size]="15" [strokeWidth]="2"></svg>
+          <span>Automated Engine Active</span>
+        </div>
+      </div>
+
+      <div class="dispatch-feed-list">
+        @if (messages().length === 0) {
+          <div class="empty-dispatch-box">
+            No dispatches recorded yet. Sync from PGRS to trigger automated SMS/IVRS transmissions.
+          </div>
+        } @else {
+          @for (m of messages(); track m.id) {
+            <div class="dispatch-feed-item" [attr.data-testid]="'dispatch-message-' + m.id">
+              <div class="feed-item-top">
+                <div class="feed-meta-left">
+                  <span class="channel-pill" [ngClass]="'channel-' + m.channel.toLowerCase()">
+                    {{ m.channel }}
+                  </span>
+                  <span class="feed-to-text">
+                    To: <strong>{{ m.to_name }}</strong> ({{ m.role }}) · {{ m.to_phone }}
+                  </span>
+                </div>
+                <div class="feed-meta-right">
+                  <span class="feed-time">{{ m.at | relativeTime }}</span>
+                  <span class="sim-tag">SIMULATED</span>
+                </div>
+              </div>
+
+              <p class="feed-message-content">{{ m.text }}</p>
+
+              @if (m.pgrs_no) {
+                <div class="feed-item-footer">
+                  <span class="feed-ref-tag">Ref: {{ m.pgrs_no }}</span>
+                  <button type="button" class="btn btn-sm btn-ghost resend-btn" (click)="retryMessage(m.id)">
+                    <svg lucideRefreshCw [size]="12" [strokeWidth]="2"></svg>
+                    <span>Resend</span>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Grievance Detail Modal -->
+@if (selectedApp()) {
+  <app-grievance-detail
+    [application]="selectedApp()!"
+    (closed)="closeApplication()"
+    (changed)="onAppChanged()"
+  ></app-grievance-detail>
+}
+
+<!-- Register Grievance Modal -->
+@if (createModalOpen()) {
+  <app-grievance-form
+    (closed)="closeCreateModal()"
+    (created)="onGrievanceCreated()"
+  ></app-grievance-form>
+}

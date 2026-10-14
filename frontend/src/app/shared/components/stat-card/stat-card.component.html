@@ -1,0 +1,23 @@
+<div class="stat-card" [ngClass]="['tone-' + tone, active ? 'is-active' : '']">
+  <div class="stat-content">
+    <div class="stat-meta">
+      <div class="stat-header-row">
+        <span class="stat-title">{{ title }}</span>
+        @if (trend) {
+          <span class="stat-trend" [class.trend-positive]="trendPositive" [class.trend-negative]="trendPositive === false">
+            {{ trend }}
+          </span>
+        }
+      </div>
+      <h3 class="stat-value">{{ value }}</h3>
+      @if (subtitle) {
+        <p class="stat-subtitle">{{ subtitle }}</p>
+      }
+    </div>
+    @if (icon) {
+      <div class="stat-icon-wrap">
+        <span class="stat-icon-symbol">{{ icon }}</span>
+      </div>
+    }
+  </div>
+</div>

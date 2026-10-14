@@ -1,0 +1,142 @@
+<section class="settings-page" data-testid="settings-page">
+  <div class="gov-container">
+    <!-- Top Hero Card -->
+    <div class="settings-hero-card">
+      <div>
+        <div class="settings-badge">
+          <svg lucideShieldCheck [size]="15" [strokeWidth]="2"></svg>
+          <span>System Administration &amp; Configuration</span>
+        </div>
+        <h1 class="page-title">Portal Settings &amp; SLA Rules</h1>
+        <p class="page-subtitle">Configure division office contact parameters, automatic gist rules, and resolution SLA targets.</p>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner-text">Loading portal configuration...</div>
+      </div>
+    } @else {
+      <form class="settings-form-layout" (ngSubmit)="saveSettings()">
+        <!-- Section 1: Office Profile -->
+        <div class="bento-card settings-section-card">
+          <div class="section-card-header">
+            <div class="card-icon-box icon-blue">
+              <svg lucideBuilding [size]="18" [strokeWidth]="2"></svg>
+            </div>
+            <div>
+              <h3 class="section-title">Division Office Identity</h3>
+              <p class="section-desc">Primary administrative credentials displayed on citizen notices and reports</p>
+            </div>
+          </div>
+
+          <div class="settings-fields-grid">
+            <div class="field-item">
+              <label class="form-label" for="office_name">Office Designation</label>
+              <input
+                id="office_name"
+                type="text"
+                class="form-input"
+                [ngModel]="settings().office_name"
+                (ngModelChange)="settings.set({...settings(), office_name: $event})"
+                name="office_name"
+              />
+            </div>
+
+            <div class="field-item">
+              <label class="form-label" for="office_email">Official Email Address</label>
+              <input
+                id="office_email"
+                type="email"
+                class="form-input"
+                [ngModel]="settings().office_email"
+                (ngModelChange)="settings.set({...settings(), office_email: $event})"
+                name="office_email"
+              />
+            </div>
+
+            <div class="field-item">
+              <label class="form-label" for="office_phone">Administrative Contact Phone</label>
+              <input
+                id="office_phone"
+                type="tel"
+                class="form-input"
+                [ngModel]="settings().office_phone"
+                (ngModelChange)="settings.set({...settings(), office_phone: $event})"
+                name="office_phone"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: SLA & Automation Parameters -->
+        <div class="bento-card settings-section-card">
+          <div class="section-card-header">
+            <div class="card-icon-box icon-lavender">
+              <svg lucideClock3 [size]="18" [strokeWidth]="2"></svg>
+            </div>
+            <div>
+              <h3 class="section-title">SLA &amp; Automated Pipeline Rules</h3>
+              <p class="section-desc">Statutory disposal targets and AI-assisted summarization preferences</p>
+            </div>
+          </div>
+
+          <div class="settings-fields-grid">
+            <div class="field-item">
+              <label class="form-label" for="sla_days">Statutory SLA Target (Days)</label>
+              <input
+                id="sla_days"
+                type="number"
+                min="1"
+                max="90"
+                class="form-input"
+                [ngModel]="settings().sla_days"
+                (ngModelChange)="settings.set({...settings(), sla_days: $event})"
+                name="sla_days"
+              />
+              <span class="field-hint">Standard government turnaround is 15 calendar days</span>
+            </div>
+          </div>
+
+          <div class="toggles-list">
+            <label class="toggle-card">
+              <input
+                type="checkbox"
+                class="toggle-checkbox"
+                [ngModel]="settings().auto_gist"
+                (ngModelChange)="settings.set({...settings(), auto_gist: $event})"
+                name="auto_gist"
+              />
+              <div class="toggle-text">
+                <span class="toggle-title">Automated 2-Line Gist Generation</span>
+                <span class="toggle-desc">Automatically analyze citizen petition text and prepare a summary upon intake</span>
+              </div>
+            </label>
+
+            <label class="toggle-card">
+              <input
+                type="checkbox"
+                class="toggle-checkbox"
+                [ngModel]="settings().ivrs_enabled"
+                (ngModelChange)="settings.set({...settings(), ivrs_enabled: $event})"
+                name="ivrs_enabled"
+              />
+              <div class="toggle-text">
+                <span class="toggle-title">Automated Citizen IVRS &amp; SMS Dispatch</span>
+                <span class="toggle-desc">Trigger instant notifications with assigned VRO mobile number upon grievance routing</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="settings-actions-bar">
+          <button type="submit" class="btn btn-primary btn-lg save-settings-btn" [disabled]="saving()">
+            <svg lucideSave [size]="16" [strokeWidth]="2"></svg>
+            <span>{{ saving() ? 'Saving Configuration...' : 'Save Configuration' }}</span>
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</section>

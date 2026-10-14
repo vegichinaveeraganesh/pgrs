@@ -1,0 +1,132 @@
+<section class="sla-page" data-testid="sla-monitoring-page">
+  <div class="gov-container">
+    <!-- Top Hero Card -->
+    <div class="sla-hero-card">
+      <div>
+        <div class="sla-badge">
+          <svg lucideShieldCheck [size]="15" [strokeWidth]="2"></svg>
+          <span>15-Day Statutory Escalation Matrix</span>
+        </div>
+        <h1 class="page-title">SLA Compliance &amp; Breach Monitoring</h1>
+        <p class="page-subtitle">Real-time surveillance of grievance resolution timelines across Bheemunipatnam Division.</p>
+      </div>
+    </div>
+
+    <!-- 4 Bento KPI Stats Cards -->
+    <div class="sla-stats-row">
+      <div class="bento-card sla-stat-card sla-on-track">
+        <div class="stat-icon-row">
+          <span class="stat-label">On Track</span>
+          <div class="sla-icon-box icon-mint">
+            <svg lucideCircleCheck [size]="18" [strokeWidth]="2"></svg>
+          </div>
+        </div>
+        <span class="stat-value">{{ stats().onTrack }}</span>
+        <span class="stat-sub">Within 15-day timeline</span>
+      </div>
+
+      <div class="bento-card sla-stat-card sla-near-breach">
+        <div class="stat-icon-row">
+          <span class="stat-label">Near Breach</span>
+          <div class="sla-icon-box icon-amber">
+            <svg lucideClock3 [size]="18" [strokeWidth]="2"></svg>
+          </div>
+        </div>
+        <span class="stat-value">{{ stats().nearBreach }}</span>
+        <span class="stat-sub">&lt; 3 days remaining</span>
+      </div>
+
+      <div class="bento-card sla-stat-card sla-beyond">
+        <div class="stat-icon-row">
+          <span class="stat-label">Beyond SLA</span>
+          <div class="sla-icon-box icon-rose">
+            <svg lucideTriangleAlert [size]="18" [strokeWidth]="2"></svg>
+          </div>
+        </div>
+        <span class="stat-value">{{ stats().beyondSla }}</span>
+        <span class="stat-sub">Overdue · Escalated to RDO</span>
+      </div>
+
+      <div class="bento-card sla-stat-card sla-resolved">
+        <div class="stat-icon-row">
+          <span class="stat-label">Resolved</span>
+          <div class="sla-icon-box icon-blue">
+            <svg lucideShieldCheck [size]="18" [strokeWidth]="2"></svg>
+          </div>
+        </div>
+        <span class="stat-value">{{ stats().resolved }}</span>
+        <span class="stat-sub">Endorsed &amp; Closed</span>
+      </div>
+    </div>
+
+    <!-- Table Card with Filters -->
+    <div class="sla-table-container">
+      <div class="table-toolbar">
+        <div>
+          <h3 class="table-heading">SLA Compliance Tracking Registry</h3>
+          <p class="table-sub">Live monitoring of grievance elapsed days and statutory breach risk</p>
+        </div>
+
+        <!-- Filter Dropdowns -->
+        <div class="sla-filters">
+          <select class="filter-select" [ngModel]="filterMandal()" (ngModelChange)="filterMandal.set($event); onFilter()">
+            <option value="">All Mandals</option>
+            @for (m of mandals; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+          <select class="filter-select" [ngModel]="filterSla()" (ngModelChange)="filterSla.set($event); onFilter()">
+            <option value="">All SLA Status</option>
+            @for (opt of slaOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner-text">Loading SLA monitoring data...</div>
+        </div>
+      } @else if (grievances().length === 0) {
+        <div class="empty-state">No grievances found matching the selected filters.</div>
+      } @else {
+        <div class="sla-table-wrap">
+          <table class="saas-sla-table">
+            <thead>
+              <tr>
+                <th>PGRS No.</th>
+                <th>Applicant Name</th>
+                <th>Mandal</th>
+                <th>Workflow Stage</th>
+                <th>SLA Compliance</th>
+                <th>Received Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (g of grievances(); track g.id) {
+                <tr class="sla-row">
+                  <td class="cell-pgrs">
+                    <span class="pgrs-pill">{{ g.pgrs_no }}</span>
+                  </td>
+                  <td class="cell-name font-bold">{{ g.applicant_name }}</td>
+                  <td>
+                    <span class="mandal-tag">{{ g.mandal }}</span>
+                  </td>
+                  <td>
+                    <app-status-badge [stage]="g.stage"></app-status-badge>
+                  </td>
+                  <td>
+                    <app-status-badge [sla]="g.sla.status" [customLabel]="g.sla.label"></app-status-badge>
+                  </td>
+                  <td class="cell-date">{{ g.created_at | formatDate:true }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</section>

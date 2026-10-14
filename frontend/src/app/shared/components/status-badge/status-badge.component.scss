@@ -1,0 +1,118 @@
+:host {
+  display: inline-flex;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  transition: all 180ms ease;
+
+  &:hover {
+    transform: translateY(-0.5px);
+  }
+}
+
+.badge-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.9);
+}
+
+/* --- Stage Badges --- */
+.badge-received {
+  background-color: #F1F5F9;
+  color: #334155;
+  border-color: #CBD5E1;
+}
+
+.badge-gist {
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+  border-color: #BFDBFE;
+}
+
+.badge-routed {
+  background-color: #EEF2FF;
+  color: #4338CA;
+  border-color: #C7D2FE;
+}
+
+.badge-ivrs {
+  background-color: #ECFEFF;
+  color: #0E7490;
+  border-color: #A5F3FC;
+}
+
+.badge-progress {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border-color: #FDE68A;
+}
+
+.badge-endorsed {
+  background-color: #ECFDF5;
+  color: #047857;
+  border-color: #A7F3D0;
+}
+
+.badge-closed {
+  background-color: #F8FAFC;
+  color: #0F172A;
+  border-color: #CBD5E1;
+  font-weight: 700;
+}
+
+.badge-default {
+  background-color: #F8FAFC;
+  color: #475569;
+  border-color: #E2E8F0;
+}
+
+/* --- SLA Status Badges --- */
+.badge-sla-on-track {
+  background-color: #ECFDF5;
+  color: #065F46;
+  border-color: #A7F3D0;
+}
+
+.badge-sla-near-breach {
+  background-color: #FFF7ED;
+  color: #9A3412;
+  border-color: #FED7AA;
+}
+
+.badge-sla-beyond {
+  background-color: #FEF2F2;
+  color: #991B1B;
+  border-color: #FECACA;
+  animation: pulseWarning 2s infinite ease-in-out;
+}
+
+.badge-sla-resolved {
+  background-color: #F0FDF4;
+  color: #166534;
+  border-color: #BBF7D0;
+}
+
+.badge-sla-default {
+  background-color: #F8FAFC;
+  color: #64748B;
+  border-color: #E2E8F0;
+}
+
+@keyframes pulseWarning {
+  0%, 100% { border-color: #FECACA; }
+  50% { border-color: #F87171; box-shadow: 0 0 8px rgba(239, 68, 68, 0.2); }
+}

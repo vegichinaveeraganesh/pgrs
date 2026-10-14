@@ -1,0 +1,20 @@
+<div class="saas-app-shell">
+  <app-sidebar
+    [collapsed]="sidebarCollapsed()"
+    [mobileOpen]="mobileNavOpen()"
+    (toggleCollapse)="toggleSidebar()"
+    (closeMobile)="closeMobileNav()"
+  ></app-sidebar>
+
+  <div class="saas-content-area" [class.sidebar-collapsed]="sidebarCollapsed()">
+    <app-navbar (toggleMobile)="toggleMobileNav()"></app-navbar>
+
+    <main class="saas-main-viewport">
+      <router-outlet></router-outlet>
+    </main>
+
+    <app-footer></app-footer>
+  </div>
+
+  <app-toast></app-toast>
+</div>

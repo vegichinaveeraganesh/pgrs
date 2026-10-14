@@ -1,0 +1,222 @@
+<!-- Hero Section -->
+<section id="overview" class="saas-hero-section" data-testid="hero-section">
+  <div class="gov-container hero-container">
+    <div class="hero-center-content">
+      <div class="hero-badge-pill">
+        <svg lucideShieldCheck [size]="16" [strokeWidth]="2" class="hero-badge-icon"></svg>
+        <span>Revenue Divisional Office · Bhimunipatnam (Bhimili) Division</span>
+      </div>
+
+      <h1 class="hero-main-title">
+        Public Grievance Redressal &amp; Automated Routing Portal
+      </h1>
+
+      <p class="hero-main-description">
+        State-of-the-art administrative portal serving <strong>Bheemunipatnam</strong>, <strong>Anandapuram</strong>, and <strong>Padmanabham</strong> mandals.
+        Features automated gist generation, instant VRO/Tahsildar field routing, citizen IVRS notifications, and strict 15-day SLA escalation monitoring.
+      </p>
+
+      <!-- Quick Search / Track Box -->
+      <div class="hero-search-card">
+        <form (submit)="onQuickTrack(); $event.preventDefault()" class="search-form-row">
+          <div class="search-input-wrapper">
+            <svg lucideSearch [size]="18" [strokeWidth]="1.8" class="search-field-icon"></svg>
+            <input
+              type="text"
+              class="hero-search-input"
+              placeholder="Enter PGRS Application No (e.g. PGRS-AP-2026-10411), Name, or Mobile..."
+              [ngModel]="searchInput()"
+              (ngModelChange)="searchInput.set($event)"
+              name="searchQuery"
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary hero-track-button"
+            [disabled]="isSearching()"
+          >
+            @if (isSearching()) {
+              <span>Searching...</span>
+            } @else {
+              <svg lucideSearch [size]="15" [strokeWidth]="2"></svg>
+              <span>Track Grievance</span>
+            }
+          </button>
+        </form>
+      </div>
+
+      <!-- Feature Badges -->
+      <div class="hero-pillars-row">
+        <div class="pillar-tag">
+          <svg lucideSparkles [size]="14" [strokeWidth]="2" class="tag-icon-lavender"></svg>
+          <span>Automated Gist Generation</span>
+        </div>
+        <div class="pillar-tag">
+          <svg lucideRoute [size]="14" [strokeWidth]="2" class="tag-icon-blue"></svg>
+          <span>Mandal–VRO Routing Matrix</span>
+        </div>
+        <div class="pillar-tag">
+          <svg lucidePhoneCall [size]="14" [strokeWidth]="2" class="tag-icon-cyan"></svg>
+          <span>Automated IVRS &amp; SMS Calls</span>
+        </div>
+        <div class="pillar-tag">
+          <svg lucideClock3 [size]="14" [strokeWidth]="2" class="tag-icon-amber"></svg>
+          <span>15-Day SLA Escalation Guard</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Counters Section -->
+@if (summary()) {
+  <section class="overview-stats-section">
+    <div class="gov-container">
+      <div class="bento-stats-grid">
+        <app-stat-card
+          title="Total Grievances"
+          [value]="summary()!.total"
+          subtitle="Registered in Bhimili Division"
+          icon="📋"
+          tone="lavender"
+        ></app-stat-card>
+        <app-stat-card
+          title="Under Process"
+          [value]="summary()!.active"
+          subtitle="Assigned to Tahsildars &amp; VROs"
+          icon="⏳"
+          tone="blue"
+        ></app-stat-card>
+        <app-stat-card
+          title="Resolved &amp; Endorsed"
+          [value]="summary()!.resolved"
+          subtitle="Proceedings &amp; pattas issued"
+          icon="✅"
+          tone="emerald"
+        ></app-stat-card>
+        <app-stat-card
+          title="Beyond SLA"
+          [value]="summary()!.beyond_sla"
+          subtitle="Resolution deadline crossed"
+          icon="🚨"
+          tone="red"
+        ></app-stat-card>
+        <app-stat-card
+          title="Citizen Satisfaction"
+          [value]="summary()!.satisfaction + ' ★'"
+          [subtitle]="summary()!.feedback_count + ' citizen IVRS feedback calls'"
+          icon="⭐"
+          tone="gold"
+        ></app-stat-card>
+      </div>
+    </div>
+  </section>
+}
+
+<!-- Administrative Pillars / Bento Features -->
+<section class="pillars-section">
+  <div class="gov-container">
+    <div class="section-header-block">
+      <span class="section-tag-badge">Division Governance Framework</span>
+      <h2 class="section-heading">How the PGRS Portal Accelerates Redressal</h2>
+      <p class="section-description">
+        Seamless collaboration between citizens, Village Revenue Officers (VROs), Tahsildars, and the Revenue Divisional Officer.
+      </p>
+    </div>
+
+    <div class="bento-features-grid">
+      <!-- Feature 1 -->
+      <div class="bento-card bento-feature-card">
+        <div class="feature-icon-box icon-lavender">
+          <svg lucideFileText [size]="20" [strokeWidth]="2"></svg>
+        </div>
+        <h3 class="feature-heading">Automatic Gist Preparation</h3>
+        <p class="feature-text">
+          As grievances arrive from the PGRS portal, the system summarizes the key subject, village, and relief requested into a standardized concise gist for immediate officer appraisal.
+        </p>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="bento-card bento-feature-card">
+        <div class="feature-icon-box icon-blue">
+          <svg lucideRoute [size]="20" [strokeWidth]="2"></svg>
+        </div>
+        <h3 class="feature-heading">Mandal &amp; Village Routing</h3>
+        <p class="feature-text">
+          Instantaneous mapping across Bheemunipatnam, Anandapuram, and Padmanabham mandals routes each case directly to the responsible VRO with contact details automatically linked.
+        </p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="bento-card bento-feature-card">
+        <div class="feature-icon-box icon-cyan">
+          <svg lucidePhoneCall [size]="20" [strokeWidth]="2"></svg>
+        </div>
+        <h3 class="feature-heading">Automated IVRS &amp; SMS Dispatch</h3>
+        <p class="feature-text">
+          Citizens receive prompt SMS and IVRS automated phone notifications providing their assigned VRO name and contact number, eliminating uncertainty and repeated office visits.
+        </p>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="bento-card bento-feature-card">
+        <div class="feature-icon-box icon-rose">
+          <svg lucideClock3 [size]="20" [strokeWidth]="2"></svg>
+        </div>
+        <h3 class="feature-heading">SLA Escalation Monitoring</h3>
+        <p class="feature-text">
+          Strict 15-day resolution clock with near-breach warnings and beyond-SLA alerts automatically escalated to Tahsildars and RDO Bhimunipatnam.
+        </p>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="bento-card bento-feature-card">
+        <div class="feature-icon-box icon-mint">
+          <svg lucideCircleCheck [size]="20" [strokeWidth]="2"></svg>
+        </div>
+        <h3 class="feature-heading">Compliance Endorsements</h3>
+        <p class="feature-text">
+          Field officers upload inspection reports, patta proceedings, and enquiry endorsements. Grievance disposal is completely verifiable and transparent.
+        </p>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="bento-card bento-feature-card">
+        <div class="feature-icon-box icon-peach">
+          <svg lucideStar [size]="20" [strokeWidth]="2"></svg>
+        </div>
+        <h3 class="feature-heading">Citizen Feedback Loop</h3>
+        <p class="feature-text">
+          Closed-loop IVRS satisfaction rating (1 to 5 stars) captures citizen feedback and routes constructive ratings to divisional leadership for service improvement.
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Navigation Call to Action -->
+    <div class="cta-saas-banner">
+      <div class="cta-left">
+        <h3 class="cta-title">Need to check your grievance status?</h3>
+        <p class="cta-desc">Use your PGRS reference ID to view real-time enquiry stages and download endorsements.</p>
+      </div>
+      <div class="cta-right">
+        <a routerLink="/tracking" class="btn btn-secondary cta-btn">
+          <svg lucideSearch [size]="15" [strokeWidth]="2"></svg>
+          <span>Track Grievance</span>
+        </a>
+        <a routerLink="/dashboard" class="btn btn-primary cta-btn">
+          <span>Go to RDO Dashboard</span>
+          <svg lucideArrowUpRight [size]="15" [strokeWidth]="2"></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Grievance Detail Modal if selected from quick search -->
+@if (selectedGrievance()) {
+  <app-grievance-detail
+    [application]="selectedGrievance()!"
+    (closed)="closeDetail()"
+    (changed)="loadStats()"
+  ></app-grievance-detail>
+}

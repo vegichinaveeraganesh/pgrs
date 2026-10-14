@@ -1,0 +1,235 @@
+<section class="tracking-page" data-testid="tracking-page">
+  <div class="gov-container">
+    <!-- Hero Banner -->
+    <div class="tracking-hero">
+      <div class="tracking-hero-badge">
+        <svg lucideShieldCheck [size]="15" [strokeWidth]="2"></svg>
+        <span>Public Grievance Redressal · Bhimunipatnam Division</span>
+      </div>
+      <h1 class="tracking-title">Track Grievance Petition Status</h1>
+      <p class="tracking-description">
+        Enter your official PGRS reference number to view the live redressal stage, assigned VRO &amp; Tahsildar contact details, timeline audit, and endorsement proceedings.
+      </p>
+    </div>
+
+    <!-- Search Card -->
+    <div class="search-card">
+      <form (submit)="searchGrievance(); $event.preventDefault()" class="search-form">
+        <div class="search-field-wrap">
+          <svg lucideSearch [size]="18" [strokeWidth]="1.8" class="search-field-icon"></svg>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Enter PGRS reference ID (e.g. PGRS-AP-2026-10411)"
+            [ngModel]="queryInput()"
+            (ngModelChange)="queryInput.set($event)"
+            name="trackingQuery"
+            data-testid="tracking-search-input"
+          />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary search-btn"
+          [disabled]="isSearching()"
+          data-testid="tracking-search-btn"
+        >
+          @if (isSearching()) {
+            <span>Searching...</span>
+          } @else {
+            <svg lucideSearch [size]="15" [strokeWidth]="2"></svg>
+            <span>Track Petition</span>
+          }
+        </button>
+      </form>
+    </div>
+
+    <!-- Tracking Result -->
+    @if (trackingResult()) {
+      <div class="tracking-result" data-testid="tracking-result">
+        <!-- Status Header Card -->
+        <div class="result-header-card">
+          <div class="result-header-top">
+            <div class="result-id-wrap">
+              <span class="result-pgrs-no">{{ trackingResult().pgrs_no }}</span>
+              <app-status-badge [stage]="trackingResult().stage"></app-status-badge>
+            </div>
+            <div class="result-sla-wrap">
+              <app-status-badge [sla]="trackingResult().sla?.status" [customLabel]="trackingResult().sla?.label"></app-status-badge>
+            </div>
+          </div>
+          <h2 class="result-subject">{{ trackingResult().subject }}</h2>
+          <span class="result-category">{{ trackingResult().category }} · {{ trackingResult().mandal }} Mandal</span>
+        </div>
+
+        <!-- Bento Info Grid (Applicant, Officers, SLA) -->
+        <div class="result-info-grid">
+          <!-- Applicant Card -->
+          <div class="bento-card info-card">
+            <div class="info-card-header">
+              <div class="card-icon-box icon-lavender">
+                <svg lucideUser [size]="18" [strokeWidth]="2"></svg>
+              </div>
+              <h4 class="info-card-title">Applicant Details</h4>
+            </div>
+            <div class="info-details-list">
+              <div class="info-row">
+                <span class="info-label">Name</span>
+                <span class="info-value font-bold">{{ trackingResult().applicant_name }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Mobile</span>
+                <span class="info-value">{{ trackingResult().phone }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Village</span>
+                <span class="info-value">{{ trackingResult().village }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Mandal</span>
+                <span class="info-value">{{ trackingResult().mandal }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assigned Officers Card -->
+          <div class="bento-card info-card">
+            <div class="info-card-header">
+              <div class="card-icon-box icon-blue">
+                <svg lucideUsersRound [size]="18" [strokeWidth]="2"></svg>
+              </div>
+              <h4 class="info-card-title">Assigned Field Officers</h4>
+            </div>
+            <div class="info-details-list">
+              <div class="info-row">
+                <span class="info-label">Village Revenue Officer (VRO)</span>
+                <span class="info-value font-bold text-primary">{{ trackingResult().vro?.name || 'Assigned to Mandal' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">VRO Contact</span>
+                <span class="info-value">{{ trackingResult().vro?.phone || '-' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Tahsildar</span>
+                <span class="info-value font-bold">{{ trackingResult().tahsildar?.name || 'Assigned' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Tahsildar Contact</span>
+                <span class="info-value">{{ trackingResult().tahsildar?.phone || '-' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLA & Timeline Status Card -->
+          <div class="bento-card info-card">
+            <div class="info-card-header">
+              <div class="card-icon-box icon-rose">
+                <svg lucideClock3 [size]="18" [strokeWidth]="2"></svg>
+              </div>
+              <h4 class="info-card-title">SLA Compliance Clock</h4>
+            </div>
+            <div class="info-details-list">
+              <div class="info-row">
+                <span class="info-label">Received Date</span>
+                <span class="info-value">{{ trackingResult().created_at | formatDate:true }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">SLA Target Deadline</span>
+                <span class="info-value font-bold">{{ trackingResult().sla_deadline | formatDate }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Current SLA State</span>
+                <span class="info-value highlight-sla">{{ trackingResult().sla?.label || 'Within SLA' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Standard SLA Window</span>
+                <span class="info-value">{{ trackingResult().sla_days || 15 }} Working Days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-Line Gist Preparation Preview -->
+        @if (trackingResult().gist) {
+          <div class="gist-bento-card">
+            <div class="gist-header">
+              <span class="gist-badge">Standard 2-Line Gist Summary</span>
+              <span class="gist-engine-label">Automated Processing Engine</span>
+            </div>
+            <p class="gist-content-text">{{ trackingResult().gist }}</p>
+          </div>
+        }
+
+        <!-- Interactive Redressal Stage Timeline -->
+        <div class="timeline-bento-card">
+          <h3 class="timeline-card-title">7-Stage Redressal Audit Trail</h3>
+          <p class="timeline-card-desc">Step-by-step verified action history for this application</p>
+
+          <div class="timeline-nodes-wrap">
+            @for (item of trackingResult().timeline; track item.stage; let idx = $index) {
+              <div class="timeline-node-item">
+                <div class="node-marker-col">
+                  <div class="node-circle" [class.node-complete]="true">
+                    <svg lucideCircleCheck [size]="14" [strokeWidth]="2.5"></svg>
+                  </div>
+                  @if (idx < trackingResult().timeline.length - 1) {
+                    <div class="node-vertical-line"></div>
+                  }
+                </div>
+                <div class="node-content-col">
+                  <div class="node-title-row">
+                    <span class="node-stage-name">{{ item.label }} ({{ item.stage }})</span>
+                    <span class="node-timestamp">{{ item.at | formatDate:true }}</span>
+                  </div>
+                  <p class="node-note-text">{{ item.note }}</p>
+                  @if (item.officerName) {
+                    <span class="node-officer-pill">Officer: {{ item.officerName }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Endorsement Section (if present) -->
+        @if (trackingResult().endorsement) {
+          <div class="endorsement-bento-card">
+            <div class="endorsement-card-header">
+              <div class="card-icon-box icon-mint">
+                <svg lucideFileText [size]="18" [strokeWidth]="2"></svg>
+              </div>
+              <div>
+                <h4 class="endorsement-title">Official Endorsement &amp; Redressal Proceedings</h4>
+                <span class="endorsement-sub">Issued by {{ trackingResult().endorsement.officer_name }} on {{ trackingResult().endorsement.at | formatDate:true }}</span>
+              </div>
+            </div>
+            <div class="endorsement-remarks-box">
+              <p class="endorsement-remarks-text">{{ trackingResult().endorsement.remarks }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- Citizen Feedback Section (if present) -->
+        @if (trackingResult().feedback) {
+          <div class="feedback-bento-card">
+            <div class="feedback-header">
+              <div class="card-icon-box icon-peach">
+                <svg lucideStar [size]="18" [strokeWidth]="2"></svg>
+              </div>
+              <div>
+                <h4 class="feedback-title">Citizen Redressal Feedback</h4>
+                <span class="feedback-sub">IVRS automated phone survey response</span>
+              </div>
+            </div>
+            <div class="feedback-rating-pill">
+              <span class="rating-number">{{ trackingResult().feedback.rating }} ★</span>
+              <span class="rating-label">Rating Out of 5.0</span>
+            </div>
+            @if (trackingResult().feedback.comment) {
+              <p class="feedback-comment">"{{ trackingResult().feedback.comment }}"</p>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

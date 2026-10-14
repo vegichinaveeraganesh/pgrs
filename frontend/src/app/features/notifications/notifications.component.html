@@ -1,0 +1,71 @@
+<section class="notifications-page" data-testid="notifications-page">
+  <div class="gov-container">
+    <!-- Top Hero Card -->
+    <div class="notif-hero-card">
+      <div>
+        <div class="notif-badge">
+          <svg lucideShieldCheck [size]="15" [strokeWidth]="2"></svg>
+          <span>Division Communications Gateway</span>
+        </div>
+        <h1 class="page-title">Automated Notification Logs</h1>
+        <p class="page-subtitle">Real-time audit trail of SMS and IVRS automated calls dispatched to citizens and field revenue officers.</p>
+      </div>
+
+      <button type="button" class="btn btn-secondary refresh-btn" (click)="loadNotifications()">
+        <svg lucideRefreshCw [size]="15" [strokeWidth]="2"></svg>
+        <span>Refresh Feed</span>
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner-text">Retrieving notification dispatches...</div>
+      </div>
+    } @else if (notifications().length === 0) {
+      <div class="empty-state">No notification dispatches recorded yet.</div>
+    } @else {
+      <div class="notifications-list">
+        @for (msg of notifications(); track msg.id) {
+          <div class="bento-card notification-card" [attr.data-id]="msg.id">
+            <div class="notif-header">
+              <div class="channel-wrap">
+                <span class="notif-channel" [ngClass]="'badge-' + msg.channel.toLowerCase()">
+                  @if (msg.channel.toLowerCase() === 'ivrs') {
+                    <svg lucidePhoneCall [size]="13" [strokeWidth]="2.2"></svg>
+                  } @else {
+                    <svg lucideSend [size]="13" [strokeWidth]="2.2"></svg>
+                  }
+                  <span>{{ msg.channel }}</span>
+                </span>
+                <span class="simulated-tag">SIMULATED</span>
+              </div>
+              <span class="notif-date">{{ msg.at | formatDate:true }}</span>
+            </div>
+
+            <div class="notif-body">
+              <div class="notif-recipient-row">
+                <span class="recipient-label">Recipient:</span>
+                <strong class="recipient-name">{{ msg.to_name }}</strong>
+                <span class="recipient-role">({{ msg.role }})</span>
+                <span class="recipient-phone">· {{ msg.to_phone }}</span>
+              </div>
+              <p class="notif-text">{{ msg.text }}</p>
+            </div>
+
+            <div class="notif-footer">
+              <div class="notif-status-badge">
+                <span class="status-dot"></span>
+                <span>{{ msg.status || 'SENT' }}</span>
+              </div>
+
+              <button type="button" class="btn btn-sm btn-ghost retry-action-btn" (click)="retryMessage(msg.id)">
+                <svg lucideRefreshCw [size]="13" [strokeWidth]="2"></svg>
+                <span>Resend Message</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

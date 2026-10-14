@@ -1,0 +1,145 @@
+<section class="saas-login-page" data-testid="login-page">
+  <div class="login-split-card">
+    <!-- Left: Brand Showcase Panel -->
+    <div class="login-brand-panel">
+      <div class="brand-panel-inner">
+        <div class="brand-emblem-box">
+          <svg lucideShieldCheck [size]="28" [strokeWidth]="2.2"></svg>
+        </div>
+
+        <div class="brand-headings">
+          <span class="portal-badge">Official Administrative Access</span>
+          <h1 class="brand-title">Revenue Divisional Office</h1>
+          <h2 class="brand-subtitle">Bhimunipatnam Division Portal</h2>
+          <p class="brand-desc">
+            Public Grievance Redressal System with automated VRO matrix dispatch, real-time SLA surveillance, and verified proceedings.
+          </p>
+        </div>
+
+        <div class="brand-features-list">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg lucideShieldCheck [size]="16" [strokeWidth]="2"></svg>
+            </div>
+            <span>Encrypted Role-Based Government Access</span>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg lucideLayoutDashboard [size]="16" [strokeWidth]="2"></svg>
+            </div>
+            <span>Real-time Mandal &amp; Village Redressal Matrix</span>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg lucideZap [size]="16" [strokeWidth]="2"></svg>
+            </div>
+            <span>Automated 7-Stage Pipeline &amp; IVRS Gateway</span>
+          </div>
+        </div>
+
+        <div class="brand-footer-note">
+          Government of Andhra Pradesh · Revenue Department
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Login Form Panel -->
+    <div class="login-form-panel">
+      <div class="form-panel-inner">
+        <div class="form-header-block">
+          <h2 class="form-main-title">Official Portal Sign In</h2>
+          <p class="form-main-subtitle">Enter your divisional administrative credentials to proceed</p>
+        </div>
+
+        <form (submit)="onLogin(); $event.preventDefault()" class="saas-login-form">
+          <div class="form-group-field">
+            <label class="field-label" for="email">Official Email Address</label>
+            <div class="field-input-box">
+              <svg lucideMail [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+              <input
+                type="email"
+                id="email"
+                class="field-input"
+                placeholder="name@bhimili.gov.in"
+                [ngModel]="email()"
+                (ngModelChange)="email.set($event)"
+                name="email"
+                autocomplete="email"
+                data-testid="login-email-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-group-field">
+            <label class="field-label" for="password">Password</label>
+            <div class="field-input-box">
+              <svg lucideLock [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                id="password"
+                class="field-input"
+                placeholder="Enter your security password"
+                [ngModel]="password()"
+                (ngModelChange)="password.set($event)"
+                name="password"
+                autocomplete="current-password"
+                data-testid="login-password-input"
+              />
+              <button
+                type="button"
+                class="password-visibility-btn"
+                (click)="togglePasswordVisibility()"
+                title="Toggle password view"
+              >
+                @if (showPassword()) {
+                  <svg lucideEyeOff [size]="16" [strokeWidth]="1.8"></svg>
+                } @else {
+                  <svg lucideEye [size]="16" [strokeWidth]="1.8"></svg>
+                }
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Test Credentials -->
+          <div class="quick-credentials-box">
+            <span class="quick-title">Quick Fill Demo Roles:</span>
+            <div class="chips-row">
+              <button type="button" class="demo-chip" (click)="fillDemo('rdo@bhimili.gov.in')">
+                RDO Admin
+              </button>
+              <button type="button" class="demo-chip" (click)="fillDemo('tahsildar.bhimili@gov.in')">
+                Tahsildar Bhimili
+              </button>
+              <button type="button" class="demo-chip" (click)="fillDemo('admin@bhimili.gov.in')">
+                Super Admin
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary btn-lg submit-login-btn"
+            [disabled]="isLoading()"
+            data-testid="login-submit-btn"
+          >
+            @if (isLoading()) {
+              <span>Authenticating...</span>
+            } @else {
+              <svg lucideLogIn [size]="16" [strokeWidth]="2"></svg>
+              <span>Sign In to Dashboard</span>
+            }
+          </button>
+        </form>
+
+        <div class="form-footer-link">
+          <a routerLink="/tracking" class="public-tracking-link">
+            <span>Citizens: Track your grievance without login</span>
+            <svg lucideArrowRight [size]="13" [strokeWidth]="2"></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

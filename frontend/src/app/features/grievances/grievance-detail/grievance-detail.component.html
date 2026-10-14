@@ -1,0 +1,405 @@
+@if (currentApp()) {
+  <div class="dialog-overlay" (click)="onClose()">
+    <div class="detail-modal" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="detail-header">
+        <div class="header-left">
+          <div class="header-tags">
+            <span class="pgrs-no-badge">{{ currentApp()!.pgrs_no }}</span>
+            <app-status-badge [stage]="currentApp()!.stage"></app-status-badge>
+            <app-status-badge [sla]="currentApp()!.sla.status" [customLabel]="currentApp()!.sla.label"></app-status-badge>
+            <span class="category-tag">{{ currentApp()!.category }}</span>
+          </div>
+          <h2 class="header-title">{{ currentApp()!.subject }}</h2>
+          <div class="header-applicant">
+            <span class="applicant-lead">
+              <svg lucideUserCheck [size]="15" [strokeWidth]="1.8" class="meta-icon"></svg>
+              <strong>{{ currentApp()!.applicant_name }}</strong>
+            </span>
+            <span class="applicant-sep">•</span>
+            <span class="applicant-phone">{{ currentApp()!.phone }}</span>
+            <span class="applicant-sep">•</span>
+            <span class="applicant-loc">
+              <svg lucideMapPin [size]="14" [strokeWidth]="1.8" class="meta-icon"></svg>
+              {{ currentApp()!.village }}, {{ currentApp()!.mandal }} Mandal
+            </span>
+          </div>
+        </div>
+        <button class="modal-close-btn" (click)="onClose()" aria-label="Close dialog">
+          <svg lucideX [size]="20" [strokeWidth]="2"></svg>
+        </button>
+      </div>
+
+      <!-- Action Navigation Tabs -->
+      <div class="detail-tabs">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab() === 'overview'"
+          (click)="activeTab.set('overview')"
+        >
+          <svg lucideFileText [size]="16" [strokeWidth]="1.8"></svg>
+          <span>Petition &amp; Gist</span>
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab() === 'timeline'"
+          (click)="activeTab.set('timeline')"
+        >
+          <svg lucideHistory [size]="16" [strokeWidth]="1.8"></svg>
+          <span>Timeline</span>
+          <span class="tab-badge">{{ currentApp()!.timeline.length }}</span>
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab() === 'endorse'"
+          (click)="activeTab.set('endorse')"
+        >
+          <svg lucideFileCheck [size]="16" [strokeWidth]="1.8"></svg>
+          <span>Endorsement</span>
+          @if (currentApp()!.endorsement) {
+            <span class="tab-dot-success"></span>
+          }
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab() === 'feedback'"
+          (click)="activeTab.set('feedback')"
+        >
+          <svg lucideStar [size]="16" [strokeWidth]="1.8"></svg>
+          <span>Citizen Feedback</span>
+          @if (currentApp()!.feedback) {
+            <span class="tab-dot-accent"></span>
+          }
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="detail-body">
+        <!-- TAB 1: OVERVIEW & GIST -->
+        @if (activeTab() === 'overview') {
+          <div class="tab-content">
+            <!-- Gist Bento Card -->
+            <div class="gist-card">
+              <div class="gist-header">
+                <div class="gist-title-wrap">
+                  <div class="gist-icon-badge">
+                    <svg lucideSparkles [size]="16" [strokeWidth]="2"></svg>
+                  </div>
+                  <div>
+                    <h4 class="gist-heading">AI-Assisted Executive Gist</h4>
+                    <p class="gist-sub">Auto-synthesized summary for rapid RDO / Collector review</p>
+                  </div>
+                </div>
+                <div class="gist-actions">
+                  <button type="button" class="btn btn-sm btn-ghost" (click)="regenerateGist()" [disabled]="isBusy()">
+                    <svg lucideRotateCcw [size]="13" [strokeWidth]="2"></svg>
+                    <span>Regenerate</span>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline" (click)="editGistMode.set(!editGistMode())">
+                    <svg lucideEdit3 [size]="13" [strokeWidth]="2"></svg>
+                    <span>{{ editGistMode() ? 'Cancel' : 'Edit Gist' }}</span>
+                  </button>
+                </div>
+              </div>
+
+              @if (editGistMode()) {
+                <div class="gist-edit-form">
+                  <textarea
+                    class="form-textarea"
+                    rows="3"
+                    [ngModel]="customGistText() || currentApp()!.gist"
+                    (ngModelChange)="customGistText.set($event)"
+                    placeholder="Enter revised 2-line gist summary..."
+                  ></textarea>
+                  <div class="gist-edit-btns">
+                    <button type="button" class="btn btn-sm btn-primary" (click)="saveCustomGist()" [disabled]="isBusy()">
+                      <svg lucideFileCheck [size]="14" [strokeWidth]="2"></svg>
+                      <span>Save Custom Gist</span>
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <div class="gist-text-box">
+                  <p class="gist-text">{{ currentApp()!.gist || 'No gist prepared yet.' }}</p>
+                </div>
+              }
+            </div>
+
+            <!-- Full Petition Description -->
+            <div class="petition-block">
+              <div class="block-header">
+                <h4 class="block-title">Full Grievance Petition Details</h4>
+                <span class="block-meta">Registered: {{ currentApp()!.created_at | formatDate:true }}</span>
+              </div>
+              <div class="petition-content">
+                <p class="desc-text">{{ currentApp()!.description }}</p>
+              </div>
+            </div>
+
+            <!-- Responsible Officers Bento Grid -->
+            <div class="officers-grid">
+              <div class="officer-bento-card vro-card">
+                <div class="officer-icon-wrap vro-icon">
+                  <svg lucideUserCheck [size]="18" [strokeWidth]="2"></svg>
+                </div>
+                <div class="officer-info">
+                  <span class="officer-role-label">Assigned Village Revenue Officer (VRO)</span>
+                  <h5 class="officer-name">{{ currentApp()!.vro?.name || 'Pending Assignment' }}</h5>
+                  <div class="officer-contact-pill">
+                    <svg lucidePhoneCall [size]="13" [strokeWidth]="2"></svg>
+                    <span>{{ currentApp()!.vro?.phone || 'No phone recorded' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="officer-bento-card tahsildar-card">
+                <div class="officer-icon-wrap tahsildar-icon">
+                  <svg lucideBuilding2 [size]="18" [strokeWidth]="2"></svg>
+                </div>
+                <div class="officer-info">
+                  <span class="officer-role-label">Jurisdictional Tahsildar</span>
+                  <h5 class="officer-name">{{ currentApp()!.tahsildar?.name || 'Pending Assignment' }}</h5>
+                  <div class="officer-contact-pill">
+                    <svg lucidePhoneCall [size]="13" [strokeWidth]="2"></svg>
+                    <span>{{ currentApp()!.tahsildar?.phone || 'No phone recorded' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Action Dispatch Bar -->
+            <div class="quick-action-bar">
+              <button
+                type="button"
+                class="btn btn-secondary btn-ivrs"
+                (click)="sendIvrsCall()"
+                [disabled]="isBusy()"
+              >
+                <svg lucidePhoneCall [size]="16" [strokeWidth]="2"></svg>
+                <span>Trigger IVRS Automated Voice Call &amp; SMS Update</span>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- TAB 2: TIMELINE -->
+        @if (activeTab() === 'timeline') {
+          <div class="timeline-container">
+            <div class="timeline-header-wrap">
+              <h4 class="block-title">Official Lifecycle &amp; Stage History</h4>
+              <p class="timeline-sub">Audited status transitions logged across the 7-stage workflow</p>
+            </div>
+            <div class="timeline-list">
+              @for (item of currentApp()!.timeline; track $index) {
+                <div class="timeline-entry">
+                  <div class="timeline-node">
+                    <div class="timeline-pin"></div>
+                  </div>
+                  <div class="timeline-card">
+                    <div class="timeline-meta">
+                      <app-status-badge [stage]="item.stage"></app-status-badge>
+                      <span class="timeline-time">{{ item.at | formatDate:true }}</span>
+                    </div>
+                    <p class="timeline-note">{{ item.note }}</p>
+                    @if (item.officerName) {
+                      <div class="timeline-officer-chip">
+                        <svg lucideUserCheck [size]="12" [strokeWidth]="2"></svg>
+                        <span>Officer: {{ item.officerName }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- TAB 3: ENDORSEMENT -->
+        @if (activeTab() === 'endorse') {
+          <div class="tab-content">
+            @if (currentApp()!.endorsement) {
+              <div class="endorsement-view-card">
+                <div class="view-header">
+                  <div class="success-badge-icon">
+                    <svg lucideCheckCircle2 [size]="20" [strokeWidth]="2.2"></svg>
+                  </div>
+                  <div class="view-header-text">
+                    <div class="view-title-row">
+                      <h4 class="view-title">Endorsement Issued &amp; Finalized</h4>
+                      <span class="badge badge-success">Official Order</span>
+                    </div>
+                    <p class="view-officer">
+                      Signed by <strong>{{ currentApp()!.endorsement!.officer_name }}</strong> • {{ currentApp()!.endorsement!.at | formatDate:true }}
+                    </p>
+                  </div>
+                </div>
+                <div class="view-remarks">
+                  <span class="remarks-label">Enquiry Findings &amp; Proceedings:</span>
+                  <p class="remarks-body">{{ currentApp()!.endorsement!.remarks }}</p>
+                </div>
+                @if (currentApp()!.endorsement!.document_url) {
+                  <div class="doc-attachment">
+                    <div class="doc-left">
+                      <svg lucidePaperclip [size]="16" [strokeWidth]="2"></svg>
+                      <span class="doc-title">Attached Proceedings File:</span>
+                    </div>
+                    <a [href]="currentApp()!.endorsement!.document_url" target="_blank" class="doc-link-btn">
+                      <span>{{ currentApp()!.endorsement!.original_filename || 'Download Endorsement Document' }}</span>
+                    </a>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Upload Endorsement Form -->
+            <div class="form-block">
+              <div class="form-block-head">
+                <h4 class="block-title">
+                  {{ currentApp()!.endorsement ? 'Update / Re-Issue Official Endorsement' : 'Upload Endorsement & Issue Compliance Order' }}
+                </h4>
+                <p class="form-instruction">
+                  Enter enquiry findings, proceedings RC number, and upload signed scanned orders (PDF/Images).
+                </p>
+              </div>
+
+              <form (submit)="submitEndorsement(); $event.preventDefault()" class="endorsement-form">
+                <div class="form-group">
+                  <label class="form-label">Issuing Officer Name &amp; Designation *</label>
+                  <input
+                    type="text"
+                    class="form-input"
+                    [ngModel]="endorsementOfficer()"
+                    (ngModelChange)="endorsementOfficer.set($event)"
+                    name="officerName"
+                    placeholder="e.g. Smt. K. Lakshmi Prasanna, Tahsildar Bheemunipatnam"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Endorsement Remarks &amp; Enquiry Findings *</label>
+                  <textarea
+                    class="form-textarea"
+                    rows="3"
+                    [ngModel]="endorsementRemarks()"
+                    (ngModelChange)="endorsementRemarks.set($event)"
+                    name="remarks"
+                    placeholder="Enter enquiry results, proceedings RC number, patta issuance details..."
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Attach Signed Proceeding / Report Document</label>
+                  <div class="file-upload-zone">
+                    <input
+                      type="file"
+                      id="endorsementFileInput"
+                      class="file-native-input"
+                      (change)="onFileSelected($event)"
+                      accept=".pdf,.png,.jpg,.jpeg,.webp"
+                    />
+                    <label for="endorsementFileInput" class="file-custom-label">
+                      <svg lucidePaperclip [size]="18" [strokeWidth]="2"></svg>
+                      <span>{{ selectedFile ? selectedFile.name : 'Choose signed PDF or scan (Max 10MB)' }}</span>
+                    </label>
+                  </div>
+                  <span class="file-hint">Supported formats: PDF, JPEG, PNG, WEBP</span>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" [disabled]="isBusy()">
+                    <svg lucideSend [size]="15" [strokeWidth]="2"></svg>
+                    <span>Submit Endorsement &amp; Notify Citizen</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+
+        <!-- TAB 4: CITIZEN FEEDBACK -->
+        @if (activeTab() === 'feedback') {
+          <div class="tab-content">
+            @if (currentApp()!.feedback) {
+              <div class="feedback-view-card">
+                <div class="feedback-header">
+                  <div class="feedback-rating-stars">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <svg
+                        lucideStar
+                        [size]="18"
+                        [strokeWidth]="2"
+                        class="star-icon"
+                        [class.filled]="star <= currentApp()!.feedback!.rating"
+                      ></svg>
+                    }
+                    <span class="rating-label">{{ currentApp()!.feedback!.rating }} / 5 Stars</span>
+                  </div>
+                  <span class="feedback-date">Recorded: {{ currentApp()!.feedback!.at | formatDate:true }}</span>
+                </div>
+                <p class="feedback-comment">
+                  "{{ currentApp()!.feedback!.comment || 'Citizen submitted satisfaction rating without additional textual commentary.' }}"
+                </p>
+              </div>
+            }
+
+            <div class="form-block">
+              <div class="form-block-head">
+                <h4 class="block-title">Record Citizen IVRS Feedback Call Response</h4>
+                <p class="form-instruction">
+                  Log satisfaction response received from applicant following the automated IVRS call or telephone verification.
+                </p>
+              </div>
+
+              <form (submit)="submitFeedback(); $event.preventDefault()" class="feedback-form">
+                <div class="form-group">
+                  <label class="form-label">Citizen Satisfaction Rating *</label>
+                  <div class="star-picker">
+                    @for (r of [1,2,3,4,5]; track r) {
+                      <button
+                        type="button"
+                        class="star-btn"
+                        [class.selected]="r <= feedbackRating()"
+                        (click)="feedbackRating.set(r)"
+                        aria-label="Rate r stars"
+                      >
+                        <svg
+                          lucideStar
+                          [size]="22"
+                          [strokeWidth]="2"
+                          class="star-svg"
+                          [class.star-filled]="r <= feedbackRating()"
+                        ></svg>
+                      </button>
+                    }
+                    <span class="selected-rating-text">{{ feedbackRating() }} / 5 Stars</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Applicant Spoken Comments</label>
+                  <textarea
+                    class="form-textarea"
+                    rows="3"
+                    [ngModel]="feedbackComment()"
+                    (ngModelChange)="feedbackComment.set($event)"
+                    name="comment"
+                    placeholder="Citizen voice response remarks regarding resolution satisfaction..."
+                  ></textarea>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-warning" [disabled]="isBusy()">
+                    <svg lucideStar [size]="16" [strokeWidth]="2"></svg>
+                    <span>Save Feedback &amp; Close Grievance</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

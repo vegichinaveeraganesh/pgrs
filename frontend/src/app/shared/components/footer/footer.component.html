@@ -1,0 +1,43 @@
+<footer class="saas-footer" data-testid="main-footer">
+  <div class="gov-container footer-container">
+    <div class="footer-top-row">
+      <div class="footer-brand-meta">
+        <div class="footer-badge">
+          <svg lucideShieldCheck [size]="18" [strokeWidth]="2" class="footer-badge-icon"></svg>
+          <span class="footer-badge-text">Government of Andhra Pradesh</span>
+        </div>
+        <p class="footer-title">Revenue Divisional Office, Bhimunipatnam Division</p>
+        <p class="footer-subtitle">
+          Public Grievance Redressal System (PGRS) & Automated VRO / Tahsildar Routing Hub
+        </p>
+      </div>
+
+      <div class="footer-nav-groups">
+        <div class="footer-link-col">
+          <span class="col-heading">Navigation</span>
+          <a routerLink="/overview">Overview</a>
+          <a routerLink="/workflow">7-Step Workflow</a>
+          <a routerLink="/dashboard">RDO Dashboard</a>
+          <a routerLink="/tracking">Track Application</a>
+        </div>
+        <div class="footer-link-col">
+          <span class="col-heading">Administration</span>
+          <a routerLink="/officials">Officials Directory</a>
+          <a routerLink="/sla-monitoring">SLA Monitoring</a>
+          <a routerLink="/reports">Reports & Analytics</a>
+          <a routerLink="/notifications">Notification Logs</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom-row">
+      <p class="footer-copy">
+        © {{ currentYear }} Revenue Divisional Office, Bhimunipatnam. Visakhapatnam District. All rights reserved.
+      </p>
+      <div class="footer-sys-badge">
+        <span class="dot-online"></span>
+        <span>Simulation Engine Active · All 3 Mandals Connected</span>
+      </div>
+    </div>
+  </div>
+</footer>

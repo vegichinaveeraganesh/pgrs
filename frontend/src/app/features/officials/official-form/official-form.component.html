@@ -1,0 +1,114 @@
+<div class="dialog-overlay" (click)="onClose()">
+  <div class="official-modal" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-left">
+        <div class="header-icon-badge">
+          <svg lucideUserPlus [size]="18" [strokeWidth]="2"></svg>
+        </div>
+        <div>
+          <h3 class="modal-title">Add Official to Directory</h3>
+          <p class="modal-subtitle">Register new Tahsildar or VRO with jurisdiction mapping</p>
+        </div>
+      </div>
+      <button type="button" class="close-btn" (click)="onClose()" aria-label="Close dialog">
+        <svg lucideX [size]="20" [strokeWidth]="2"></svg>
+      </button>
+    </div>
+
+    <!-- Modal Form Body -->
+    <form (submit)="onSubmit(); $event.preventDefault()" class="modal-form">
+      <div class="form-group">
+        <label class="form-label">Administrative Role *</label>
+        <select
+          class="form-select"
+          [ngModel]="role()"
+          (ngModelChange)="role.set($event)"
+          name="role"
+          required
+        >
+          <option value="VRO">Village Revenue Officer (VRO)</option>
+          <option value="Tahsildar">Tahsildar</option>
+          <option value="RDO">Revenue Divisional Officer (RDO)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Official Name *</label>
+        <input
+          type="text"
+          class="form-input"
+          [ngModel]="name()"
+          (ngModelChange)="name.set($event)"
+          name="name"
+          placeholder="e.g. Sri K. Trinadh"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Official Mobile Number *</label>
+        <input
+          type="text"
+          class="form-input"
+          [ngModel]="phone()"
+          (ngModelChange)="phone.set($event)"
+          name="phone"
+          placeholder="+91 94901 23203"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Official Email</label>
+        <input
+          type="email"
+          class="form-input"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          name="email"
+          placeholder="officer@bhimili.gov.in"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Jurisdiction Mandal *</label>
+        <select
+          class="form-select"
+          [ngModel]="mandal()"
+          (ngModelChange)="mandal.set($event)"
+          name="mandal"
+          required
+        >
+          @for (m of mandalList(); track m) {
+            <option [value]="m">{{ m }}</option>
+          }
+        </select>
+      </div>
+
+      @if (role() === 'VRO') {
+        <div class="form-group">
+          <label class="form-label">Assigned Village Name</label>
+          <input
+            type="text"
+            class="form-input"
+            [ngModel]="village()"
+            (ngModelChange)="village.set($event)"
+            name="village"
+            placeholder="e.g. Mamidilova"
+          />
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="onClose()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+          <svg lucideSave [size]="15" [strokeWidth]="2"></svg>
+          <span>{{ isSubmitting() ? 'Saving...' : 'Save Official' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

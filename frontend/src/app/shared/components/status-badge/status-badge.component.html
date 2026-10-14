@@ -1,0 +1,14 @@
+@if (stageMeta) {
+  <span class="badge" [ngClass]="stageMeta.badgeClass">
+    <span class="badge-dot" [style.background-color]="stageMeta.dotColor"></span>
+    {{ customLabel || stageMeta.label }}
+  </span>
+} @else if (slaMeta) {
+  <span class="badge badge-sla" [ngClass]="slaMeta.badgeClass">
+    {{ customLabel || slaMeta.label }}
+  </span>
+} @else if (customLabel) {
+  <span class="badge badge-default">
+    {{ customLabel }}
+  </span>
+}

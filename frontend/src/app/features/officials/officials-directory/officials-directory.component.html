@@ -1,0 +1,107 @@
+<section id="directory" class="directory-page" data-testid="directory-section">
+  <div class="gov-container">
+    <!-- Top Header -->
+    <div class="directory-top-card">
+      <div>
+        <div class="directory-badge">
+          <svg lucideShieldCheck [size]="15" [strokeWidth]="2"></svg>
+          <span>Division Administrative Matrix</span>
+        </div>
+        <h1 class="directory-title">
+          {{ directoryData()?.division || 'Bhimunipatnam (Bhimili) Division' }} · Officials Directory
+        </h1>
+        <p class="directory-desc">
+          Mandal Tahsildars, Village Revenue Officers (VROs), contact phone lines, and real-time pending case loads.
+        </p>
+      </div>
+
+      <button type="button" class="btn btn-primary add-official-btn" (click)="openAddOfficialModal()">
+        <svg lucidePlus [size]="16" [strokeWidth]="2.2"></svg>
+        <span>Add Official</span>
+      </button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p>Loading officials directory matrix...</p>
+      </div>
+    } @else if (directoryData()) {
+      <div class="mandals-grid">
+        @for (m of directoryData()!.mandals; track m.mandal) {
+          <div class="bento-card mandal-card">
+            <!-- Mandal Header & Tahsildar -->
+            <div class="mandal-header-block">
+              <div class="mandal-title-row">
+                <div class="mandal-name-wrap">
+                  <div class="mandal-icon-box">
+                    <svg lucideBuilding [size]="18" [strokeWidth]="2"></svg>
+                  </div>
+                  <div>
+                    <h3 class="mandal-name">{{ m.mandal }} Mandal</h3>
+                    <span class="mandal-jurisdiction-label">Revenue Jurisdiction</span>
+                  </div>
+                </div>
+                <span class="mandal-stats-badge">
+                  {{ m.pending }} Pending / {{ m.total }} Total
+                </span>
+              </div>
+
+              <!-- Tahsildar Info Box -->
+              <div class="tahsildar-badge-box">
+                <div class="tah-meta-row">
+                  <div>
+                    <span class="tah-role-tag">Tahsildar / Executive Magistrate</span>
+                    <h4 class="tah-name">{{ m.tahsildar.name }}</h4>
+                  </div>
+                  <a [href]="'tel:' + m.tahsildar.phone" class="phone-link-btn" title="Call Tahsildar">
+                    <svg lucidePhoneCall [size]="14" [strokeWidth]="2"></svg>
+                    <span>{{ m.tahsildar.phone }}</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Village & VRO Matrix List -->
+            <div class="villages-matrix">
+              <div class="matrix-header-row">
+                <h4 class="matrix-heading">Villages &amp; Assigned VROs</h4>
+                <span class="village-count-tag">{{ m.villages.length }} Villages</span>
+              </div>
+
+              <div class="village-list">
+                @for (v of m.villages; track v.name) {
+                  <div class="village-row">
+                    <div class="village-info">
+                      <div class="village-name-row">
+                        <svg lucideMapPin [size]="13" [strokeWidth]="2" class="v-pin"></svg>
+                        <span class="village-name">{{ v.name }}</span>
+                      </div>
+                      <p class="vro-line">
+                        VRO: <strong>{{ v.vro.name }}</strong>
+                        <span class="vro-phone">· {{ v.vro.phone }}</span>
+                      </p>
+                    </div>
+                    <div class="village-count">
+                      <span class="pending-chip" [class.has-pending]="v.pending > 0">
+                        {{ v.pending }} pending
+                      </span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Official Form Modal -->
+@if (officialModalOpen()) {
+  <app-official-form
+    [defaultMandal]="selectedMandalForAdd()"
+    (closed)="closeOfficialModal()"
+    (saved)="onOfficialSaved()"
+  ></app-official-form>
+}

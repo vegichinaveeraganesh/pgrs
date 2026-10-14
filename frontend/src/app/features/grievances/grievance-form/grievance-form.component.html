@@ -1,0 +1,182 @@
+<div class="dialog-overlay" (click)="onClose()">
+  <div class="form-modal" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="form-modal-header">
+      <div class="header-left">
+        <div class="header-icon-badge">
+          <svg lucideFilePlus2 [size]="20" [strokeWidth]="2"></svg>
+        </div>
+        <div>
+          <h3 class="modal-title">Register Public Grievance</h3>
+          <p class="modal-subtitle">Direct intake into RDO Bhimunipatnam database with automated VRO dispatch</p>
+        </div>
+      </div>
+      <button type="button" class="close-btn" (click)="onClose()" aria-label="Close dialog">
+        <svg lucideX [size]="20" [strokeWidth]="2"></svg>
+      </button>
+    </div>
+
+    <!-- Modal Form Body -->
+    <form (submit)="onSubmit(); $event.preventDefault()" class="modal-body-form">
+      <!-- Section 1: Citizen Details -->
+      <div class="form-section">
+        <div class="section-heading">
+          <svg lucideUser [size]="15" [strokeWidth]="2"></svg>
+          <span>Applicant Information</span>
+        </div>
+        <div class="form-grid grid-3">
+          <div class="form-group">
+            <label class="form-label">Applicant Full Name *</label>
+            <input
+              type="text"
+              class="form-input"
+              [ngModel]="applicantName()"
+              (ngModelChange)="applicantName.set($event)"
+              name="applicantName"
+              placeholder="e.g. Sri Nooka Raju"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Applicant Mobile Number *</label>
+            <input
+              type="text"
+              class="form-input"
+              [ngModel]="phone()"
+              (ngModelChange)="phone.set($event)"
+              name="phone"
+              placeholder="+91 98485 51101"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address (Optional)</label>
+            <input
+              type="email"
+              class="form-input"
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              name="email"
+              placeholder="applicant@example.com"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Jurisdiction & Routing -->
+      <div class="form-section">
+        <div class="section-heading">
+          <svg lucideMapPin [size]="15" [strokeWidth]="2"></svg>
+          <span>Jurisdiction &amp; Routing (Bhimunipatnam Division)</span>
+        </div>
+        <div class="form-grid grid-2">
+          <div class="form-group">
+            <label class="form-label">Mandal *</label>
+            <select
+              class="form-select"
+              [ngModel]="mandal()"
+              (ngModelChange)="onMandalChange($event)"
+              name="mandal"
+              required
+            >
+              @for (m of mandalList(); track m) {
+                <option [value]="m">{{ m }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Village *</label>
+            <select
+              class="form-select"
+              [ngModel]="village()"
+              (ngModelChange)="village.set($event)"
+              name="village"
+              required
+            >
+              @for (v of villageList(); track v.name) {
+                <option [value]="v.name">{{ v.name }} (VRO: {{ v.vroName || 'Mapped' }})</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Grievance Details -->
+      <div class="form-section">
+        <div class="section-heading">
+          <svg lucideFileText [size]="15" [strokeWidth]="2"></svg>
+          <span>Grievance Petition Details</span>
+        </div>
+        <div class="form-grid grid-2">
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select
+              class="form-select"
+              [ngModel]="category()"
+              (ngModelChange)="category.set($event)"
+              name="category"
+              required
+            >
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Resolution SLA Target (Calendar Days)</label>
+            <input
+              type="number"
+              class="form-input"
+              [ngModel]="slaDays()"
+              (ngModelChange)="slaDays.set($event)"
+              name="slaDays"
+              min="1"
+              max="60"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Grievance Subject / Headline *</label>
+          <input
+            type="text"
+            class="form-input"
+            [ngModel]="subject()"
+            (ngModelChange)="subject.set($event)"
+            name="subject"
+            placeholder="e.g. Correction of name in 1B Adangal record"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Full Petition Description *</label>
+          <textarea
+            class="form-textarea"
+            rows="4"
+            [ngModel]="description()"
+            (ngModelChange)="description.set($event)"
+            name="description"
+            placeholder="Provide comprehensive details of the petition, survey numbers, relief requested..."
+            required
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="onClose()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+          <svg lucideSend [size]="15" [strokeWidth]="2"></svg>
+          <span>{{ isSubmitting() ? 'Registering...' : 'Register & Auto-Route Grievance' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

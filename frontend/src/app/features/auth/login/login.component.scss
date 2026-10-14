@@ -1,0 +1,296 @@
+:host {
+  display: block;
+}
+
+.saas-login-page {
+  min-height: calc(100vh - 72px - 140px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.25rem;
+  background: var(--bg-main, #F8FAFC);
+}
+
+.login-split-card {
+  max-width: 960px;
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid var(--border-light, #E2E8F0);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 860px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Left Brand Panel */
+.login-brand-panel {
+  background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 40%, #2563EB 100%);
+  color: #FFFFFF;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    right: -80px;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.brand-panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-emblem-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.portal-badge {
+  display: inline-block;
+  font-size: 0.725rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #93C5FD;
+  margin-bottom: 0.5rem;
+}
+
+.brand-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+}
+
+.brand-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #DBEAFE;
+  margin: 0 0 0.85rem;
+}
+
+.brand-desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.brand-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.feature-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-footer-note {
+  font-size: 0.725rem;
+  color: rgba(255, 255, 255, 0.65);
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Right Form Panel */
+.login-form-panel {
+  padding: 3rem 2.5rem;
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+}
+
+.form-panel-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.form-main-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-heading, #0F172A);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.3rem;
+}
+
+.form-main-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748B);
+  margin: 0;
+}
+
+.saas-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-heading, #0F172A);
+  margin-bottom: 0.4rem;
+}
+
+.field-input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--text-light, #94A3B8);
+  pointer-events: none;
+}
+
+.field-input {
+  width: 100%;
+  padding: 0.65rem 2.5rem 0.65rem 2.5rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  border-radius: 12px;
+  border: 1px solid var(--border-light, #E2E8F0);
+  background: #F8FAFC;
+  color: var(--text-heading, #0F172A);
+  outline: none;
+  transition: all 150ms ease;
+
+  &:focus {
+    background: #FFFFFF;
+    border-color: var(--primary-blue, #2563EB);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+}
+
+.password-visibility-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--text-light, #94A3B8);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: var(--text-heading, #0F172A);
+  }
+}
+
+/* Quick Fill Demo Chips */
+.quick-credentials-box {
+  background: #F8FAFC;
+  border: 1px solid var(--border-light, #E2E8F0);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.quick-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-light, #94A3B8);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.chips-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.demo-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #FFFFFF;
+  border: 1px solid var(--border-light, #E2E8F0);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  color: var(--primary-blue, #2563EB);
+  cursor: pointer;
+  transition: all 120ms ease;
+
+  &:hover {
+    background: #EFF6FF;
+    border-color: #BFDBFE;
+  }
+}
+
+.submit-login-btn {
+  width: 100%;
+}
+
+.form-footer-link {
+  text-align: center;
+  padding-top: 0.5rem;
+}
+
+.public-tracking-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--primary-blue, #2563EB);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -1,0 +1,103 @@
+<section id="pipeline" class="pipeline-section" data-testid="workflow-pipeline-section">
+  <div class="gov-container">
+    <div class="pipeline-header-block">
+      <div class="pipeline-tag-badge">
+        <svg lucideShieldCheck [size]="15" [strokeWidth]="2"></svg>
+        <span>Standard Operating Procedure (SOP)</span>
+      </div>
+      <h1 class="pipeline-main-title">7-Stage Grievance Lifecycle Pipeline</h1>
+      <p class="pipeline-main-subtitle">
+        Every petition filed in Bhimunipatnam Division passes through an auditable, transparent seven-phase workflow from intake to citizen feedback closure.
+      </p>
+    </div>
+
+    <!-- Stepper Pipeline View (Connected Timeline Cards) -->
+    <div class="pipeline-track-container">
+      <div class="pipeline-cards-row">
+        @for (step of steps; track step.step) {
+          <div
+            class="pipeline-step-card"
+            [class.active]="activeStep() === step.step"
+            [class.completed]="activeStep() > step.step"
+            (click)="selectStep(step.step)"
+            [attr.data-step]="step.step"
+          >
+            <div class="step-card-top">
+              <span class="step-number-pill">Stage {{ step.step }}</span>
+              <span class="step-sla-tag">{{ step.slaTag }}</span>
+            </div>
+
+            <div class="step-icon-circle">
+              @switch (step.iconName) {
+                @case ('inbox') { <svg lucideInbox [size]="20" [strokeWidth]="2"></svg> }
+                @case ('sparkles') { <svg lucideSparkles [size]="20" [strokeWidth]="2"></svg> }
+                @case ('route') { <svg lucideRoute [size]="20" [strokeWidth]="2"></svg> }
+                @case ('phone') { <svg lucidePhoneCall [size]="20" [strokeWidth]="2"></svg> }
+                @case ('clock') { <svg lucideClock3 [size]="20" [strokeWidth]="2"></svg> }
+                @case ('check') { <svg lucideCircleCheck [size]="20" [strokeWidth]="2"></svg> }
+                @case ('star') { <svg lucideStar [size]="20" [strokeWidth]="2"></svg> }
+              }
+            </div>
+
+            <h3 class="step-title">{{ step.name }}</h3>
+            <p class="step-desc-short">{{ step.desc }}</p>
+
+            <div class="step-active-indicator"></div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Active Step Deep-Dive Bento Card -->
+    @for (s of steps; track s.step) {
+      @if (s.step === activeStep()) {
+        <div class="step-details-bento-card">
+          <div class="bento-details-header">
+            <div class="details-icon-wrap">
+              @switch (s.iconName) {
+                @case ('inbox') { <svg lucideInbox [size]="24" [strokeWidth]="2"></svg> }
+                @case ('sparkles') { <svg lucideSparkles [size]="24" [strokeWidth]="2"></svg> }
+                @case ('route') { <svg lucideRoute [size]="24" [strokeWidth]="2"></svg> }
+                @case ('phone') { <svg lucidePhoneCall [size]="24" [strokeWidth]="2"></svg> }
+                @case ('clock') { <svg lucideClock3 [size]="24" [strokeWidth]="2"></svg> }
+                @case ('check') { <svg lucideCircleCheck [size]="24" [strokeWidth]="2"></svg> }
+                @case ('star') { <svg lucideStar [size]="24" [strokeWidth]="2"></svg> }
+              }
+            </div>
+            <div>
+              <div class="details-stage-tag">Detailed Specifications · Stage {{ s.step }} of 7</div>
+              <h2 class="details-stage-title">{{ s.name }} ({{ s.code }})</h2>
+            </div>
+          </div>
+
+          <div class="bento-details-grid">
+            <div class="detail-info-block">
+              <span class="block-label">Process Description</span>
+              <p class="block-value">{{ s.details }}</p>
+            </div>
+
+            <div class="detail-info-block">
+              <span class="block-label">Responsible Administrative Authorities</span>
+              <p class="block-value highlight-officer">{{ s.responsibles }}</p>
+            </div>
+
+            <div class="detail-info-block">
+              <span class="block-label">Statutory Target Timeline</span>
+              <p class="block-value">{{ s.slaTag }} (Part of 15-Day Division SLA)</p>
+            </div>
+          </div>
+
+          <div class="bento-details-actions">
+            <a routerLink="/dashboard" class="btn btn-primary">
+              <span>View Active Cases in this Stage</span>
+              <svg lucideArrowRight [size]="15" [strokeWidth]="2"></svg>
+            </a>
+            <a routerLink="/tracking" class="btn btn-secondary">
+              <span>Check Any Application Status</span>
+            </a>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</section>

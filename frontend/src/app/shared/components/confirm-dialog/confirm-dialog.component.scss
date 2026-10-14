@@ -1,0 +1,46 @@
+.confirm-box {
+  background: #ffffff;
+  border-radius: 0.875rem;
+  box-shadow: var(--shadow-xl);
+  max-width: 28rem;
+  width: 100%;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  animation: scaleIn 0.2s ease-out;
+}
+
+.confirm-header {
+  margin-bottom: 0.75rem;
+}
+
+.confirm-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.confirm-body {
+  margin-bottom: 1.5rem;
+}
+
+.confirm-text {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.btn-danger {
+  background-color: #DC2626;
+  color: #ffffff;
+  border-color: #DC2626;
+
+  &:hover {
+    background-color: #B91C1C;
+  }
+}

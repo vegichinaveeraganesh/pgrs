@@ -1,0 +1,25 @@
+@if (open) {
+  <div class="dialog-overlay" (click)="onCancel()">
+    <div class="confirm-box" (click)="$event.stopPropagation()">
+      <div class="confirm-header">
+        <h3 class="confirm-title">{{ title }}</h3>
+      </div>
+      <div class="confirm-body">
+        <p class="confirm-text">{{ message }}</p>
+      </div>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">
+          {{ cancelText }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [ngClass]="tone === 'danger' ? 'btn-danger' : 'btn-primary'"
+          (click)="onConfirm()"
+        >
+          {{ confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

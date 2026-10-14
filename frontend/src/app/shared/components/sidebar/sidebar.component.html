@@ -1,0 +1,107 @@
+<!-- Mobile Overlay -->
+@if (mobileOpen) {
+  <div class="sidebar-backdrop" (click)="onCloseMobile()"></div>
+}
+
+<aside class="saas-sidebar" [class.collapsed]="collapsed" [class.mobile-open]="mobileOpen">
+  <!-- Brand Section -->
+  <div class="sidebar-brand-wrapper">
+    <div class="brand-logo-container">
+      <div class="brand-emblem">
+        <svg lucideShieldCheck [size]="22" [strokeWidth]="2.2" class="emblem-icon"></svg>
+      </div>
+      @if (!collapsed) {
+        <div class="brand-text-block">
+          <span class="brand-title">RDO Bhimunipatnam</span>
+          <span class="brand-subtitle">PGRS Division Portal</span>
+        </div>
+      }
+    </div>
+
+    <!-- Mobile Close or Desktop Collapse Toggle -->
+    <button type="button" class="sidebar-toggle-btn desktop-only" (click)="onToggle()" [title]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+      @if (collapsed) {
+        <svg lucideChevronRight [size]="16" [strokeWidth]="2"></svg>
+      } @else {
+        <svg lucideChevronLeft [size]="16" [strokeWidth]="2"></svg>
+      }
+    </button>
+
+    <button type="button" class="sidebar-close-btn mobile-only" (click)="onCloseMobile()">
+      <svg lucideX [size]="18" [strokeWidth]="2"></svg>
+    </button>
+  </div>
+
+  <!-- Navigation Groups -->
+  <div class="sidebar-scrollable">
+    @for (group of navGroups; track group.group) {
+      <div class="nav-group-section">
+        @if (!collapsed) {
+          <h6 class="nav-group-header">{{ group.group }}</h6>
+        }
+        <nav class="nav-items-list">
+          @for (item of group.items; track item.path) {
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="active"
+              (click)="onCloseMobile()"
+              class="nav-link-item"
+              [attr.data-tooltip]="collapsed ? item.label : null"
+            >
+              <div class="nav-icon-box">
+                @switch (item.icon) {
+                  @case ('house') { <svg lucideHouse [size]="18" [strokeWidth]="1.85"></svg> }
+                  @case ('route') { <svg lucideRoute [size]="18" [strokeWidth]="1.85"></svg> }
+                  @case ('dashboard') { <svg lucideLayoutDashboard [size]="18" [strokeWidth]="1.85"></svg> }
+                  @case ('search') { <svg lucideSearch [size]="18" [strokeWidth]="1.85"></svg> }
+                  @case ('officials') { <svg lucideUsersRound [size]="18" [strokeWidth]="1.85"></svg> }
+                  @case ('sla') { <svg lucideClock3 [size]="18" [strokeWidth]="1.85"></svg> }
+                  @case ('notifications') { <svg lucideMessageSquareText [size]="18" [strokeWidth]="1.85"></svg> }
+                  @case ('reports') { <svg lucideChartNoAxesCombined [size]="18" [strokeWidth]="1.85"></svg> }
+                  @case ('settings') { <svg lucideSettings [size]="18" [strokeWidth]="1.85"></svg> }
+                }
+              </div>
+              @if (!collapsed) {
+                <span class="nav-label-text">{{ item.label }}</span>
+                @if (item.badge) {
+                  <span class="nav-badge" [class.badge-live]="item.badge === 'Live'">{{ item.badge }}</span>
+                }
+              }
+            </a>
+          }
+        </nav>
+      </div>
+    }
+  </div>
+
+  <!-- Bottom User Card & System Status -->
+  <div class="sidebar-footer-wrapper">
+    <div class="system-status-pill" [class.collapsed-status]="collapsed">
+      <span class="status-dot-pulse"></span>
+      @if (!collapsed) {
+        <span class="status-msg">SLA Engine Operational</span>
+      }
+    </div>
+
+    <div class="user-profile-card" [class.collapsed-user]="collapsed">
+      <div class="user-avatar-glow">
+        {{ (authService.currentUser()?.name || 'R').charAt(0) }}
+      </div>
+      @if (!collapsed) {
+        <div class="user-meta-block">
+          <p class="user-fullname">{{ authService.currentUser()?.name || 'RDO Administrator' }}</p>
+          <span class="user-role-badge">{{ authService.currentUser()?.role || 'Revenue Officer' }}</span>
+        </div>
+      }
+      @if (authService.isAuthenticated()) {
+        <button type="button" class="auth-action-btn" (click)="logout()" title="Logout">
+          <svg lucideLogOut [size]="16" [strokeWidth]="1.85"></svg>
+        </button>
+      } @else {
+        <a routerLink="/auth/login" class="auth-action-btn" title="Login" (click)="onCloseMobile()">
+          <svg lucideLogIn [size]="16" [strokeWidth]="1.85"></svg>
+        </a>
+      }
+    </div>
+  </div>
+</aside>
