@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: rdo-pgrs-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: SMS_MODE
+        value: simulation
+      - key: IVRS_MODE
+        value: simulation
+      - key: PGRS_SYNC_MODE
+        value: simulation
+      - key: SLA_DEFAULT_DAYS
+        value: "15"
+      - key: UPLOAD_DIR
+        value: ./uploads

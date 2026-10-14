@@ -16,7 +16,7 @@ app.use(helmet({
 
 // CORS setup
 const allowedOrigins = [
-  env.frontendUrl,
+  ...env.frontendUrl.split(',').map(u => u.trim()).filter(Boolean),
   'http://localhost:4200',
   'http://127.0.0.1:4200'
 ];
@@ -27,7 +27,10 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    return callback(null, true); // Permissive in dev to avoid blocking
+    if (env.nodeEnv === 'production') {
+      return callback(new Error('Not allowed by CORS'));
+    }
+    return callback(null, true); // Permissive in dev
   },
   credentials: true
 }));
