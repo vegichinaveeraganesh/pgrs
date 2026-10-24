@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const env = require('../config/env');
+const { sendOtpEmail } = require('../utils/mailer');
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
@@ -103,15 +104,20 @@ const authController = {
 
   async register(req, res, next) {
     try {
-      const { name, email, password, phone, designation, mandal, role } = req.body;
-      if (!name || !email || !password) {
+      // Step 1: User provides name + email only → OTP sent
+      // Password is set AFTER OTP verification via /set-password endpoint
+      const { name, email, phone, designation, mandal, role } = req.body;
+      if (!name || !email) {
         return res.status(400).json({
           success: false,
-          message: 'Name, email, and password are required'
+          message: 'Name and email are required'
         });
       }
 
       const cleanEmail = email.toLowerCase().trim();
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+
       const existing = await User.findOne({ email: cleanEmail });
       if (existing) {
         if (existing.isEmailVerified) {
@@ -120,49 +126,90 @@ const authController = {
             message: 'An account with this email already exists. Please sign in.'
           });
         }
-        // If existing but unverified, generate a new code and let them verify
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        // Resend OTP for unverified account
         existing.verificationCode = code;
-        existing.verificationExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+        existing.verificationExpires = expires;
         await existing.save();
-
-        console.log(`[Email Verification] Code for ${cleanEmail}: ${code}`);
-
+        await sendOtpEmail(cleanEmail, code, existing.name);
+        console.log(`[OTP] Resent for ${cleanEmail}: ${code}`);
         return res.json({
           success: true,
           needsVerification: true,
           email: cleanEmail,
-          verificationCode: code, // returned for immediate testing / development convenience
-          message: `Verification code generated for ${cleanEmail}. Enter code to activate account.`
+          message: `A 6-digit OTP has been sent to ${cleanEmail}. Please check your inbox.`
         });
       }
 
-      const passwordHash = await User.hashPassword(password);
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-
+      // Create new unverified user (no password yet)
       const newUser = new User({
         name: name.trim(),
         email: cleanEmail,
-        passwordHash,
-        role: role || 'rdo',
+        passwordHash: 'PENDING_SET_AFTER_OTP',
+        role: role || 'staff',
         phone: phone ? phone.trim() : '',
-        designation: designation ? designation.trim() : 'Revenue Divisional Officer / Admin',
-        mandal: mandal || 'Bheemunipatnam',
+        designation: designation ? designation.trim() : '',
+        mandal: mandal || '',
         active: true,
         isEmailVerified: false,
         verificationCode: code,
-        verificationExpires: new Date(Date.now() + 15 * 60 * 1000) // 15 mins
+        verificationExpires: expires
       });
 
       await newUser.save();
-      console.log(`[Email Verification] New registration: ${cleanEmail}, code: ${code}`);
+      await sendOtpEmail(cleanEmail, code, name.trim());
+      console.log(`[OTP] Sent to ${cleanEmail}: ${code}`);
 
       return res.status(201).json({
         success: true,
         needsVerification: true,
         email: cleanEmail,
-        verificationCode: code, // returned so the user can easily test in development
-        message: `Account registered successfully! Please enter the 6-digit validation code sent to ${cleanEmail}.`
+        message: `A 6-digit OTP has been sent to ${cleanEmail}. Please check your inbox and enter the code.`
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async setPassword(req, res, next) {
+    try {
+      // After OTP verified, user sets password
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: 'Email and password are required' });
+      }
+      if (password.length < 8) {
+        return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
+      }
+
+      const cleanEmail = email.toLowerCase().trim();
+      const user = await User.findOne({ email: cleanEmail });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      if (!user.isEmailVerified) {
+        return res.status(403).json({ success: false, message: 'Email not verified. Please verify OTP first.' });
+      }
+
+      const passwordHash = await User.hashPassword(password);
+      user.passwordHash = passwordHash;
+      user.lastLogin = new Date();
+      await user.save();
+
+      const tokens = generateTokens(user);
+      return res.json({
+        success: true,
+        message: 'Password set successfully! You are now logged in.',
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          designation: user.designation,
+          mandal: user.mandal
+        }
       });
     } catch (err) {
       next(err);
@@ -257,20 +304,13 @@ const authController = {
     try {
       const { email } = req.body;
       if (!email) {
-        return res.status(400).json({
-          success: false,
-          message: 'Email is required'
-        });
+        return res.status(400).json({ success: false, message: 'Email is required' });
       }
 
       const cleanEmail = email.toLowerCase().trim();
       const user = await User.findOne({ email: cleanEmail });
-
       if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: 'User account not found'
-        });
+        return res.status(404).json({ success: false, message: 'User account not found' });
       }
 
       const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -278,12 +318,12 @@ const authController = {
       user.verificationExpires = new Date(Date.now() + 15 * 60 * 1000);
       await user.save();
 
-      console.log(`[Email Verification] Resent code for ${cleanEmail}: ${code}`);
+      await sendOtpEmail(cleanEmail, code, user.name);
+      console.log(`[OTP] Resent for ${cleanEmail}: ${code}`);
 
       res.json({
         success: true,
-        verificationCode: code,
-        message: `Fresh verification code generated for ${cleanEmail}.`
+        message: `A fresh OTP has been sent to ${cleanEmail}. Please check your inbox.`
       });
     } catch (err) {
       next(err);
@@ -342,5 +382,8 @@ const authController = {
     });
   }
 };
+
+// Add setPassword to authController
+authController.setPassword = authController.setPassword;
 
 module.exports = authController;

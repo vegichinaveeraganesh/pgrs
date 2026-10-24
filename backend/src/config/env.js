@@ -13,5 +13,11 @@ module.exports = {
   ivrsMode: process.env.IVRS_MODE || 'simulation',
   pgrsSyncMode: process.env.PGRS_SYNC_MODE || 'simulation',
   slaDefaultDays: parseInt(process.env.SLA_DEFAULT_DAYS, 10) || 15,
-  uploadDir: process.env.UPLOAD_DIR || './uploads'
+  uploadDir: process.env.UPLOAD_DIR || './uploads',
+
+  // SMTP Email config (set these in Render environment variables)
+  smtpHost: process.env.SMTP_HOST || '',
+  smtpPort: process.env.SMTP_PORT || '587',
+  smtpUser: process.env.SMTP_USER || '',        // e.g. yourapp@gmail.com
+  smtpPass: process.env.SMTP_PASS || ''         // Gmail App Password
 };

@@ -29,7 +29,7 @@ export class AuthService {
     );
   }
 
-  register(data: { name: string; email: string; password: string; phone?: string; designation?: string; mandal?: string; role?: string }): Observable<any> {
+  register(data: { name: string; email: string; phone?: string; designation?: string; mandal?: string; role?: string }): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/register`, data);
   }
 
@@ -45,6 +45,16 @@ export class AuthService {
 
   resendVerification(email: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/resend-verification`, { email });
+  }
+
+  setPassword(data: { email: string; password: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/set-password`, data).pipe(
+      tap(res => {
+        if (res.success && res.accessToken) {
+          this.setSession(res);
+        }
+      })
+    );
   }
 
   logout() {

@@ -68,13 +68,17 @@
             <svg lucideUserPlus [size]="15" [strokeWidth]="2"></svg>
             <span>Register Account</span>
           </button>
-          @if (authMode() === 'verify') {
+          @if (authMode() === 'verify' || authMode() === 'set-password') {
             <button
               type="button"
               class="auth-tab-btn active verify-active-tab"
             >
               <svg lucideKeyRound [size]="15" [strokeWidth]="2"></svg>
-              <span>Validate Email</span>
+              @if (authMode() === 'set-password') {
+                <span>Create Password</span>
+              } @else {
+                <span>Verify OTP</span>
+              }
             </button>
           }
         </div>
@@ -246,33 +250,6 @@
               </div>
             </div>
 
-            <div class="form-group-field">
-              <label class="field-label" for="regPassword">Security Password *</label>
-              <div class="field-input-box">
-                <svg lucideLock [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
-                <input
-                  [type]="showPassword() ? 'text' : 'password'"
-                  id="regPassword"
-                  class="field-input"
-                  placeholder="Create a strong password"
-                  [ngModel]="regPassword()"
-                  (ngModelChange)="regPassword.set($event)"
-                  name="regPassword"
-                  required
-                />
-                <button
-                  type="button"
-                  class="password-visibility-btn"
-                  (click)="togglePasswordVisibility()"
-                >
-                  @if (showPassword()) {
-                    <svg lucideEyeOff [size]="16" [strokeWidth]="1.8"></svg>
-                  } @else {
-                    <svg lucideEye [size]="16" [strokeWidth]="1.8"></svg>
-                  }
-                </button>
-              </div>
-            </div>
 
             <button
               type="submit"
@@ -280,36 +257,28 @@
               [disabled]="isLoading()"
             >
               @if (isLoading()) {
-                <span>Registering Account...</span>
+                <span>Sending OTP...</span>
               } @else {
                 <svg lucideUserPlus [size]="16" [strokeWidth]="2"></svg>
-                <span>Register &amp; Send Verification Code</span>
+                <span>Register &amp; Send OTP</span>
               }
             </button>
           </form>
         }
 
-        <!-- VIEW 3: VALIDATE EMAIL WITH CODE -->
+        <!-- VIEW 3: VERIFY OTP -->
         @if (authMode() === 'verify') {
           <div class="form-header-block">
-            <h2 class="form-main-title">Validate Email Address</h2>
+            <h2 class="form-main-title">Verify Your Email</h2>
             <p class="form-main-subtitle">
-              We generated a 6-digit verification code for
-              <strong class="highlight-email">{{ verifyEmailAddress() }}</strong>
+              We sent a 6-digit OTP to
+              <strong class="highlight-email">{{ verifyEmailAddress() }}</strong>. Check your inbox.
             </p>
           </div>
 
-          @if (generatedDemoCode()) {
-            <div class="demo-otp-banner">
-              <span class="otp-badge">Validation Code Generated:</span>
-              <strong class="otp-number">{{ generatedDemoCode() }}</strong>
-              <span class="otp-hint">(Entered automatically for immediate sign-in)</span>
-            </div>
-          }
-
           <form (submit)="onVerifyCode(); $event.preventDefault()" class="saas-login-form">
             <div class="form-group-field">
-              <label class="field-label" for="verifyCode">Enter 6-Digit Email Validation Code *</label>
+              <label class="field-label" for="verifyCode">Enter 6-Digit OTP Code *</label>
               <div class="field-input-box">
                 <svg lucideKeyRound [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
                 <input
@@ -334,7 +303,7 @@
                 [disabled]="isLoading()"
               >
                 <svg lucideRotateCcw [size]="13" [strokeWidth]="2"></svg>
-                <span>Resend Code</span>
+                <span>Resend OTP</span>
               </button>
 
               <button
@@ -352,10 +321,81 @@
               [disabled]="isLoading()"
             >
               @if (isLoading()) {
-                <span>Validating Email...</span>
+                <span>Verifying OTP...</span>
               } @else {
                 <svg lucideCheckCircle2 [size]="16" [strokeWidth]="2"></svg>
-                <span>Validate &amp; Launch Dashboard</span>
+                <span>Verify OTP</span>
+              }
+            </button>
+          </form>
+        }
+
+        <!-- VIEW 4: SET PASSWORD (after OTP verified) -->
+        @if (authMode() === 'set-password') {
+          <div class="form-header-block">
+            <h2 class="form-main-title">Create Your Password</h2>
+            <p class="form-main-subtitle">
+              Email verified! Set a secure password for
+              <strong class="highlight-email">{{ verifyEmailAddress() }}</strong>
+            </p>
+          </div>
+
+          <form (submit)="onSetPassword(); $event.preventDefault()" class="saas-login-form">
+            <div class="form-group-field">
+              <label class="field-label" for="newPassword">New Password *</label>
+              <div class="field-input-box">
+                <svg lucideLock [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                <input
+                  [type]="showNewPassword() ? 'text' : 'password'"
+                  id="newPassword"
+                  class="field-input"
+                  placeholder="Minimum 8 characters"
+                  [ngModel]="newPassword()"
+                  (ngModelChange)="newPassword.set($event)"
+                  name="newPassword"
+                  required
+                />
+                <button
+                  type="button"
+                  class="password-visibility-btn"
+                  (click)="toggleNewPasswordVisibility()"
+                >
+                  @if (showNewPassword()) {
+                    <svg lucideEyeOff [size]="16" [strokeWidth]="1.8"></svg>
+                  } @else {
+                    <svg lucideEye [size]="16" [strokeWidth]="1.8"></svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group-field">
+              <label class="field-label" for="confirmPassword">Confirm Password *</label>
+              <div class="field-input-box">
+                <svg lucideLock [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  class="field-input"
+                  placeholder="Re-enter your password"
+                  [ngModel]="confirmPassword()"
+                  (ngModelChange)="confirmPassword.set($event)"
+                  name="confirmPassword"
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-success btn-lg submit-login-btn"
+              [disabled]="isLoading()"
+            >
+              @if (isLoading()) {
+                <span>Setting Password...</span>
+              } @else {
+                <svg lucideCheckCircle2 [size]="16" [strokeWidth]="2"></svg>
+                <span>Set Password &amp; Login</span>
               }
             </button>
           </form>

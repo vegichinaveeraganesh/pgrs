@@ -54,19 +54,18 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  // Active view: 'login' | 'register' | 'verify'
-  public authMode = signal<'login' | 'register' | 'verify'>('login');
+  // Active view: 'login' | 'register' | 'verify' | 'set-password'
+  public authMode = signal<'login' | 'register' | 'verify' | 'set-password'>('login');
 
   // Login form
-  public email = signal<string>('rdo@bhimili.gov.in');
-  public password = signal<string>('admin123');
+  public email = signal<string>('');
+  public password = signal<string>('');
   public isLoading = signal<boolean>(false);
   public showPassword = signal<boolean>(false);
 
   // Registration form
   public regName = signal<string>('');
   public regEmail = signal<string>('');
-  public regPassword = signal<string>('');
   public regPhone = signal<string>('');
   public regMandal = signal<string>('Bheemunipatnam');
 
@@ -74,6 +73,11 @@ export class LoginComponent {
   public verifyEmailAddress = signal<string>('');
   public verifyCode = signal<string>('');
   public generatedDemoCode = signal<string>('');
+
+  // Set password form (after OTP)
+  public newPassword = signal<string>('');
+  public confirmPassword = signal<string>('');
+  public showNewPassword = signal<boolean>(false);
 
   onLogin() {
     if (!this.email() || !this.password()) {
@@ -105,8 +109,8 @@ export class LoginComponent {
   }
 
   onRegister() {
-    if (!this.regName() || !this.regEmail() || !this.regPassword()) {
-      this.toast.error('Please provide your Name, Email, and Password');
+    if (!this.regName() || !this.regEmail()) {
+      this.toast.error('Please provide your Name and Email');
       return;
     }
 
@@ -114,20 +118,15 @@ export class LoginComponent {
     this.auth.register({
       name: this.regName(),
       email: this.regEmail(),
-      password: this.regPassword(),
       phone: this.regPhone(),
       mandal: this.regMandal(),
-      role: 'rdo'
+      role: 'staff'
     }).subscribe({
       next: res => {
         this.isLoading.set(false);
         this.verifyEmailAddress.set(this.regEmail());
-        if (res.verificationCode) {
-          this.generatedDemoCode.set(res.verificationCode);
-          this.verifyCode.set(res.verificationCode); // auto-fill for quick convenience
-        }
         this.authMode.set('verify');
-        this.toast.success(res.message || 'Registration successful! Verification code generated.');
+        this.toast.success(res.message || 'OTP sent to your email! Please check your inbox.');
       },
       error: err => {
         this.isLoading.set(false);
@@ -138,7 +137,7 @@ export class LoginComponent {
 
   onVerifyCode() {
     if (!this.verifyEmailAddress() || !this.verifyCode()) {
-      this.toast.error('Please enter the 6-digit verification code');
+      this.toast.error('Please enter the 6-digit OTP code');
       return;
     }
 
@@ -150,14 +149,44 @@ export class LoginComponent {
       next: res => {
         this.isLoading.set(false);
         if (res.success) {
-          this.toast.success('Email validated successfully! Access granted.');
+          // OTP verified — now go to set-password step
+          this.authMode.set('set-password');
+          this.toast.success('Email verified! Please create your password.');
+        }
+      },
+      error: err => {
+        this.isLoading.set(false);
+        this.toast.error(err.error?.message || 'Invalid OTP. Please try again.');
+      }
+    });
+  }
+
+  onSetPassword() {
+    if (!this.newPassword() || this.newPassword().length < 8) {
+      this.toast.error('Password must be at least 8 characters');
+      return;
+    }
+    if (this.newPassword() !== this.confirmPassword()) {
+      this.toast.error('Passwords do not match');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.auth.setPassword({
+      email: this.verifyEmailAddress(),
+      password: this.newPassword()
+    }).subscribe({
+      next: res => {
+        this.isLoading.set(false);
+        if (res.success) {
+          this.toast.success(`Welcome, ${res.user?.name}! Account ready.`);
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
           this.router.navigateByUrl(returnUrl);
         }
       },
       error: err => {
         this.isLoading.set(false);
-        this.toast.error(err.error?.message || 'Verification failed. Invalid code.');
+        this.toast.error(err.error?.message || 'Failed to set password. Try again.');
       }
     });
   }
@@ -166,19 +195,19 @@ export class LoginComponent {
     if (!this.verifyEmailAddress()) return;
     this.isLoading.set(true);
     this.auth.resendVerification(this.verifyEmailAddress()).subscribe({
-      next: res => {
+      next: () => {
         this.isLoading.set(false);
-        if (res.verificationCode) {
-          this.generatedDemoCode.set(res.verificationCode);
-          this.verifyCode.set(res.verificationCode);
-        }
-        this.toast.success('Fresh verification code sent!');
+        this.toast.success('Fresh OTP sent to your email! Please check your inbox.');
       },
       error: err => {
         this.isLoading.set(false);
-        this.toast.error(err.error?.message || 'Failed to resend code');
+        this.toast.error(err.error?.message || 'Failed to resend OTP');
       }
     });
+  }
+
+  toggleNewPasswordVisibility() {
+    this.showNewPassword.update(v => !v);
   }
 
   togglePasswordVisibility() {
@@ -187,7 +216,7 @@ export class LoginComponent {
 
   fillDemo(email: string) {
     this.email.set(email);
-    this.password.set('admin123');
+    this.password.set('Admin@12345');
     this.authMode.set('login');
   }
 }
