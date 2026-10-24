@@ -134,8 +134,12 @@ export class LoginComponent {
       next: res => {
         this.isLoading.set(false);
         this.verifyEmailAddress.set(this.regEmail());
+        if (res.code) {
+          this.generatedDemoCode.set(res.code);
+          this.verifyCode.set(res.code);
+        }
         this.authMode.set('verify');
-        this.toast.success(res.message || 'OTP sent to your email! Please check your inbox.');
+        this.toast.success(res.message || 'OTP generated! Check terminal or email.');
       },
       error: err => {
         this.isLoading.set(false);
@@ -205,9 +209,13 @@ export class LoginComponent {
     if (!this.verifyEmailAddress()) return;
     this.isLoading.set(true);
     this.auth.resendVerification(this.verifyEmailAddress()).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isLoading.set(false);
-        this.toast.success('Fresh OTP sent to your email! Please check your inbox.');
+        if (res.code) {
+          this.generatedDemoCode.set(res.code);
+          this.verifyCode.set(res.code);
+        }
+        this.toast.success(res.message || 'Fresh OTP generated! Check terminal or inbox.');
       },
       error: err => {
         this.isLoading.set(false);

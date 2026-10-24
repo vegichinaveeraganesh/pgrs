@@ -272,9 +272,25 @@
             <h2 class="form-main-title">Verify Your Email</h2>
             <p class="form-main-subtitle">
               We sent a 6-digit OTP to
-              <strong class="highlight-email">{{ verifyEmailAddress() }}</strong>. Check your inbox.
+              <strong class="highlight-email">{{ verifyEmailAddress() }}</strong>. Check your inbox or terminal.
             </p>
           </div>
+
+          @if (generatedDemoCode()) {
+            <div style="background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <div style="font-size: 11px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.5px;">Live OTP Code (Terminal / SMS)</div>
+                <div style="font-size: 22px; font-weight: 800; color: #065f46; letter-spacing: 6px;">{{ generatedDemoCode() }}</div>
+              </div>
+              <button
+                type="button"
+                style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;"
+                (click)="verifyCode.set(generatedDemoCode())"
+              >
+                Auto-Fill
+              </button>
+            </div>
+          }
 
           <form (submit)="onVerifyCode(); $event.preventDefault()" class="saas-login-form">
             <div class="form-group-field">

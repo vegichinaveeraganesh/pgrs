@@ -136,7 +136,8 @@ const authController = {
           success: true,
           needsVerification: true,
           email: cleanEmail,
-          message: `A 6-digit OTP has been sent to ${cleanEmail}. Please check your inbox.`
+          code: code,
+          message: `A 6-digit OTP has been sent to ${cleanEmail}. Please check your inbox or terminal.`
         });
       }
 
@@ -163,7 +164,8 @@ const authController = {
         success: true,
         needsVerification: true,
         email: cleanEmail,
-        message: `A 6-digit OTP has been sent to ${cleanEmail}. Please check your inbox and enter the code.`
+        code: code,
+        message: `A 6-digit OTP has been sent to ${cleanEmail}. Please check your inbox or terminal.`
       });
     } catch (err) {
       next(err);
@@ -323,7 +325,8 @@ const authController = {
 
       res.json({
         success: true,
-        message: `A fresh OTP has been sent to ${cleanEmail}. Please check your inbox.`
+        code: code,
+        message: `A fresh OTP has been sent to ${cleanEmail}. Please check your inbox or terminal.`
       });
     } catch (err) {
       next(err);

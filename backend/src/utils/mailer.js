@@ -42,14 +42,19 @@ function getTransporter() {
  * @param {string} name - recipient name
  */
 async function sendOtpEmail(toEmail, otp, name = 'Officer') {
+  // Always log prominently to terminal console
+  console.log('\n╔══════════════════════════════════════════════════════╗');
+  console.log(`║ 🔑 PGRS OTP VERIFICATION CODE                        ║`);
+  console.log(`║ 👤 Name:  ${(name || 'Officer').slice(0, 40).padEnd(41)}║`);
+  console.log(`║ 📧 Email: ${toEmail.slice(0, 40).padEnd(41)}║`);
+  console.log(`║ 🔢 OTP CODE: >>> ${otp} <<<                          ║`);
+  console.log(`║ ⏰ Valid for 15 minutes                              ║`);
+  console.log('╚══════════════════════════════════════════════════════╝\n');
+
   const mailer = getTransporter();
 
   if (!mailer) {
-    // Development fallback - just log
-    console.log(`\n[MAILER] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    console.log(`[MAILER] To: ${toEmail}`);
-    console.log(`[MAILER] OTP Code: ${otp}`);
-    console.log(`[MAILER] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+    console.log('[MAILER] No SMTP credentials configured. OTP logged to console above.');
     return { simulated: true, otp };
   }
 
@@ -87,14 +92,19 @@ async function sendOtpEmail(toEmail, otp, name = 'Officer') {
     </html>
   `;
 
-  await mailer.sendMail({
-    from: `"RDO PGRS Portal" <${env.smtpUser}>`,
-    to: toEmail,
-    subject: `${otp} – Your PGRS Verification Code`,
-    html
-  });
-
-  return { sent: true };
+  try {
+    await mailer.sendMail({
+      from: `"RDO PGRS Portal" <${env.smtpUser}>`,
+      to: toEmail,
+      subject: `${otp} – Your PGRS Verification Code`,
+      html
+    });
+    console.log(`✅ [MAILER] Real OTP email sent successfully to ${toEmail}`);
+    return { sent: true };
+  } catch (err) {
+    console.error(`⚠️ [MAILER] Could not deliver email via SMTP (${err.message}). Using console OTP.`);
+    return { simulated: true, otp, error: err.message };
+  }
 }
 
 module.exports = { sendOtpEmail };
