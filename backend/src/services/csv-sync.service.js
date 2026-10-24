@@ -76,6 +76,8 @@ const csvSyncService = {
 
     let inserted = 0;
     let updated = 0;
+    let skipped = 0;
+    const errors = [];
     const mandalsSet = new Set();
 
     // Cache officials and villages for fast lookup
@@ -84,205 +86,223 @@ const csvSyncService = {
     const allMandals = await Mandal.find({});
 
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
+      try {
+        const row = rows[i];
 
-      // Extract PGRS Number
-      let pgrsNo = findField(row, ['pgrs_no', 'grievance_no', 'grievance_id', 'petition_no', 'application_no', 'id']);
-      if (!pgrsNo) {
-        pgrsNo = `PGRS-AP-2026-${10500 + i}`;
-      }
-
-      // Extract Applicant Name
-      let applicantName = findField(row, ['applicant_name', 'citizen_name', 'petitioner_name', 'applicant', 'name']);
-      if (!applicantName) applicantName = `Citizen ${i + 1}`;
-
-      // Extract Phone
-      let phone = findField(row, ['phone', 'mobile', 'mobile_no', 'contact_no', 'cell']);
-      if (!phone) phone = '+91 94901 00000';
-
-      // Extract Mandal (normalize to known mandals if possible)
-      let mandalName = findField(row, ['mandal', 'mandal_name', 'taluk']);
-      if (!mandalName) {
-        mandalName = 'Bheemunipatnam';
-      } else {
-        const lower = mandalName.toLowerCase();
-        if (lower.includes('bhim') || lower.includes('bheem')) mandalName = 'Bheemunipatnam';
-        else if (lower.includes('anand')) mandalName = 'Anandapuram';
-        else if (lower.includes('padman')) mandalName = 'Padmanabham';
-        else if (lower.includes('rural')) mandalName = 'Visakhapatnam Rural';
-        else if (lower.includes('seetham') || lower.includes('sitham')) mandalName = 'Seethammadhara';
-      }
-      mandalsSet.add(mandalName);
-
-      // Extract Village
-      let villageName = findField(row, ['village', 'village_name', 'ward', 'habitation']);
-      if (!villageName) villageName = mandalName;
-
-      // Extract Source Channel (CMO Grievances, PR, Sadassulu, etc.)
-      let sourceChannel = findField(row, ['source', 'channel', 'scheme', 'petition_type', 'type']);
-      if (!sourceChannel) sourceChannel = 'PGRS (Monday/Other Days)';
-
-      // Extract Category / Subject / Description
-      let category = findField(row, ['category', 'department', 'service_name', 'grievance_type']);
-      if (!category) category = 'Revenue & Land Matters';
-
-      let subject = findField(row, ['subject', 'title', 'sub_category']);
-      if (!subject) subject = `${category} Petition`;
-
-      let description = findField(row, ['description', 'details', 'grievance_description', 'remarks']);
-      if (!description) description = `Grievance submitted by ${applicantName} in ${villageName}, ${mandalName}. Early enquiry and redressal requested.`;
-
-      // Extract Status
-      let statusStr = findField(row, ['status', 'stage', 'current_status', 'redressal_status']).toUpperCase();
-      let stage = 'IN_PROGRESS';
-      let stageLabel = 'Under Process';
-
-      if (statusStr.includes('CLOSE') || statusStr.includes('REDRESS') || statusStr.includes('RESOLV')) {
-        stage = 'CLOSED';
-        stageLabel = 'Closed with Feedback';
-      } else if (statusStr.includes('ENDORSE')) {
-        stage = 'ENDORSED';
-        stageLabel = 'Endorsement Issued';
-      } else if (statusStr.includes('ROUT')) {
-        stage = 'ROUTED';
-        stageLabel = 'Routed to VRO & Tahsildar';
-      } else if (statusStr.includes('RECEIV') || statusStr.includes('NEW')) {
-        stage = 'RECEIVED';
-        stageLabel = 'Application Received';
-      }
-
-      // Dates and SLA
-      const now = new Date();
-      let createdAt = now;
-      const regDateStr = findField(row, ['registered_date', 'application_date', 'received_date', 'date', 'created_at']);
-      if (regDateStr) {
-        const parsed = new Date(regDateStr);
-        if (!isNaN(parsed.getTime())) createdAt = parsed;
-      }
-
-      const slaDays = 15;
-      const slaDeadline = new Date(createdAt.getTime() + slaDays * 24 * 60 * 60 * 1000);
-
-      // Map VRO and Tahsildar
-      const matchedMandal = allMandals.find(m => m.name.toLowerCase() === mandalName.toLowerCase());
-      const matchedVillage = allVillages.find(v => v.name.toLowerCase() === villageName.toLowerCase() && v.mandal.toLowerCase() === mandalName.toLowerCase());
-      const vroOfficial = allOfficials.find(o => o.role === 'VRO' && o.mandal === mandalName);
-      const tahsildarOfficial = allOfficials.find(o => o.role === 'Tahsildar' && o.mandal === mandalName);
-
-      const vro = {
-        name: matchedVillage?.vroName || vroOfficial?.name || 'Concerned VRO',
-        phone: matchedVillage?.vroPhone || vroOfficial?.phone || '+91 94901 23000'
-      };
-
-      const tahsildar = {
-        name: matchedMandal?.tahsildarName || tahsildarOfficial?.name || 'Tahsildar ' + mandalName,
-        phone: matchedMandal?.tahsildarPhone || tahsildarOfficial?.phone || '+91 94901 23000'
-      };
-
-      const existingGrievance = await Grievance.findOne({ pgrs_no: pgrsNo });
-      const gist = gistService.generateGist({
-        applicant_name: applicantName,
-        category,
-        subject,
-        village: villageName,
-        mandal: mandalName,
-        description
-      });
-
-      if (existingGrievance) {
-        existingGrievance.applicant_name = applicantName;
-        existingGrievance.phone = phone;
-        existingGrievance.mandal = mandalName;
-        existingGrievance.village = villageName;
-        existingGrievance.category = category;
-        existingGrievance.subject = subject;
-        existingGrievance.description = description;
-        existingGrievance.gist = gist;
-        existingGrievance.stage = stage;
-        existingGrievance.stage_label = stageLabel;
-        existingGrievance.vro = vro;
-        existingGrievance.tahsildar = tahsildar;
-        if (stage === 'CLOSED' && !existingGrievance.closed_at) {
-          existingGrievance.closed_at = new Date();
+        // Extract PGRS Number
+        let pgrsNo = findField(row, ['pgrs_no', 'grievance_no', 'grievance_id', 'petition_no', 'application_no', 'id']);
+        if (!pgrsNo) {
+          pgrsNo = `PGRS-AP-2026-${10500 + i}`;
         }
-        await existingGrievance.save();
-        updated++;
-      } else {
-        const newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : (`app-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`);
 
-        const newGrievance = new Grievance({
-          id: newId,
-          pgrs_no: pgrsNo,
+        // Extract Applicant Name
+        let applicantName = findField(row, ['applicant_name', 'citizen_name', 'petitioner_name', 'applicant', 'name']);
+        if (!applicantName) applicantName = `Citizen ${i + 1}`;
+
+        // Extract Phone
+        let phone = findField(row, ['phone', 'mobile', 'mobile_no', 'contact_no', 'cell']);
+        if (!phone) phone = '+91 94901 00000';
+
+        // Extract Mandal (normalize to known mandals if possible)
+        let mandalName = findField(row, ['mandal', 'mandal_name', 'taluk']);
+        if (!mandalName) {
+          mandalName = 'Bheemunipatnam';
+        } else {
+          const lower = mandalName.toLowerCase();
+          if (lower.includes('bhim') || lower.includes('bheem')) mandalName = 'Bheemunipatnam';
+          else if (lower.includes('anand')) mandalName = 'Anandapuram';
+          else if (lower.includes('padman')) mandalName = 'Padmanabham';
+          else if (lower.includes('rural')) mandalName = 'Visakhapatnam Rural';
+          else if (lower.includes('seetham') || lower.includes('sitham')) mandalName = 'Seethammadhara';
+        }
+        mandalsSet.add(mandalName);
+
+        // Extract Village
+        let villageName = findField(row, ['village', 'village_name', 'ward', 'habitation']);
+        if (!villageName) villageName = mandalName;
+
+        // Extract Source Channel (CMO Grievances, PR, Sadassulu, etc.)
+        let sourceChannel = findField(row, ['source', 'channel', 'scheme', 'petition_type', 'type']);
+        if (!sourceChannel) sourceChannel = 'PGRS (Monday/Other Days)';
+
+        // Extract Category / Subject / Description
+        let category = findField(row, ['category', 'department', 'service_name', 'grievance_type']);
+        if (!category) category = 'Revenue & Land Matters';
+
+        let subject = findField(row, ['subject', 'title', 'sub_category']);
+        if (!subject) subject = `${category} Petition`;
+
+        let description = findField(row, ['description', 'details', 'grievance_description', 'remarks']);
+        if (!description) description = `Grievance submitted by ${applicantName} in ${villageName}, ${mandalName}. Early enquiry and redressal requested.`;
+
+        // Extract Status
+        let statusStr = (findField(row, ['status', 'stage', 'current_status', 'redressal_status']) || '').toUpperCase();
+        let stage = 'IN_PROGRESS';
+        let stageLabel = 'Under Process';
+
+        if (statusStr.includes('CLOSE') || statusStr.includes('REDRESS') || statusStr.includes('RESOLV')) {
+          stage = 'CLOSED';
+          stageLabel = 'Closed with Feedback';
+        } else if (statusStr.includes('ENDORSE')) {
+          stage = 'ENDORSED';
+          stageLabel = 'Endorsement Issued';
+        } else if (statusStr.includes('ROUT')) {
+          stage = 'ROUTED';
+          stageLabel = 'Routed to VRO & Tahsildar';
+        } else if (statusStr.includes('RECEIV') || statusStr.includes('NEW')) {
+          stage = 'RECEIVED';
+          stageLabel = 'Application Received';
+        }
+
+        // Dates and SLA
+        const now = new Date();
+        let createdAt = now;
+        const regDateStr = findField(row, ['registered_date', 'application_date', 'received_date', 'date', 'created_at']);
+        if (regDateStr) {
+          const parsed = new Date(regDateStr);
+          if (!isNaN(parsed.getTime())) createdAt = parsed;
+        }
+
+        const slaDays = 15;
+        const slaDeadline = new Date(createdAt.getTime() + slaDays * 24 * 60 * 60 * 1000);
+
+        // Map VRO and Tahsildar
+        const matchedMandal = allMandals.find(m => m.name.toLowerCase() === mandalName.toLowerCase());
+        const matchedVillage = allVillages.find(v => v.name.toLowerCase() === villageName.toLowerCase() && v.mandal.toLowerCase() === mandalName.toLowerCase());
+        const vroOfficial = allOfficials.find(o => o.role === 'VRO' && o.mandal === mandalName);
+        const tahsildarOfficial = allOfficials.find(o => o.role === 'Tahsildar' && o.mandal === mandalName);
+
+        const vro = {
+          name: matchedVillage?.vroName || vroOfficial?.name || 'Concerned VRO',
+          phone: matchedVillage?.vroPhone || vroOfficial?.phone || '+91 94901 23000'
+        };
+
+        const tahsildar = {
+          name: matchedMandal?.tahsildarName || tahsildarOfficial?.name || 'Tahsildar ' + mandalName,
+          phone: matchedMandal?.tahsildarPhone || tahsildarOfficial?.phone || '+91 94901 23000'
+        };
+
+        const existingGrievance = await Grievance.findOne({ pgrs_no: pgrsNo });
+        const gist = gistService.generateGist({
           applicant_name: applicantName,
-          phone,
-          mandal: mandalName,
-          mandalId: matchedMandal?._id,
-          village: villageName,
-          villageId: matchedVillage?._id,
           category,
           subject,
-          description,
-          gist,
-          stage,
-          stage_label: stageLabel,
-          vro,
-          tahsildar,
-          sla_days: slaDays,
-          sla_deadline: slaDeadline,
-          created_at: createdAt,
-          closed_at: stage === 'CLOSED' ? new Date() : undefined,
-          timeline: [
-            {
-              stage: 'RECEIVED',
-              label: 'Application Received',
-              note: `Grievance synced from uploaded PGRS CSV into RDO Bhimunipatnam database (${sourceChannel}).`,
-              at: createdAt
-            },
-            {
-              stage: 'GIST_PREPARED',
-              label: 'Gist Prepared',
-              note: 'Automated gist of the uploaded petition prepared by the system.',
-              at: new Date(createdAt.getTime() + 10 * 60 * 1000)
-            },
-            {
-              stage: 'ROUTED',
-              label: 'Routed to VRO & Tahsildar',
-              note: `Routed to ${vro.name} (VRO) and ${tahsildar.name} (Tahsildar).`,
-              at: new Date(createdAt.getTime() + 30 * 60 * 1000)
-            }
-          ]
+          village: villageName,
+          mandal: mandalName,
+          description
         });
 
-        await newGrievance.save();
-        inserted++;
+        if (existingGrievance) {
+          existingGrievance.applicant_name = applicantName;
+          existingGrievance.phone = phone;
+          existingGrievance.mandal = mandalName;
+          existingGrievance.village = villageName;
+          existingGrievance.category = category;
+          existingGrievance.subject = subject;
+          existingGrievance.description = description;
+          existingGrievance.gist = gist;
+          existingGrievance.stage = stage;
+          existingGrievance.stage_label = stageLabel;
+          existingGrievance.vro = vro;
+          existingGrievance.tahsildar = tahsildar;
+          if (stage === 'CLOSED' && !existingGrievance.closed_at) {
+            existingGrievance.closed_at = new Date();
+          }
+          await existingGrievance.save();
+          updated++;
+        } else {
+          const newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : (`app-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`);
+
+          const newGrievance = new Grievance({
+            id: newId,
+            pgrs_no: pgrsNo,
+            applicant_name: applicantName,
+            phone,
+            mandal: mandalName,
+            mandalId: matchedMandal?._id || undefined,
+            village: villageName,
+            villageId: matchedVillage?._id || undefined,
+            category,
+            subject,
+            description,
+            gist,
+            stage,
+            stage_label: stageLabel,
+            vro,
+            tahsildar,
+            sla_days: slaDays,
+            sla_deadline: slaDeadline,
+            created_at: createdAt,
+            closed_at: stage === 'CLOSED' ? new Date() : undefined,
+            timeline: [
+              {
+                stage: 'RECEIVED',
+                label: 'Application Received',
+                note: `Grievance synced from uploaded PGRS CSV into RDO Bhimunipatnam database (${sourceChannel}).`,
+                at: createdAt
+              },
+              {
+                stage: 'GIST_PREPARED',
+                label: 'Gist Prepared',
+                note: 'Automated gist of the uploaded petition prepared by the system.',
+                at: new Date(createdAt.getTime() + 10 * 60 * 1000)
+              },
+              {
+                stage: 'ROUTED',
+                label: 'Routed to VRO & Tahsildar',
+                note: `Routed to ${vro.name} (VRO) and ${tahsildar.name} (Tahsildar).`,
+                at: new Date(createdAt.getTime() + 30 * 60 * 1000)
+              }
+            ]
+          });
+
+          await newGrievance.save();
+          inserted++;
+        }
+      } catch (rowErr) {
+        // Log the error but continue processing other rows
+        console.warn(`[CSV Sync] Row ${i + 1} error: ${rowErr.message}`);
+        errors.push(`Row ${i + 1}: ${rowErr.message}`);
+        skipped++;
       }
     }
 
     // Recalculate official workload counts
-    await routingService.recalculateOfficialCounts();
+    try {
+      await routingService.recalculateOfficialCounts();
+    } catch (e) {
+      console.warn('[CSV Sync] Could not recalculate official counts:', e.message);
+    }
 
     // Log audit
-    const audit = new AuditLog({
-      action: 'PGRS_CSV_SYNC',
-      entity_type: 'PGRS_IMPORT',
-      details: {
-        totalRows: rows.length,
-        inserted,
-        updated,
-        uploadedBy,
-        mandals: Array.from(mandalsSet)
-      }
-    });
-    await audit.save();
+    try {
+      const audit = new AuditLog({
+        action: 'PGRS_CSV_SYNC',
+        entity_type: 'PGRS_IMPORT',
+        details: {
+          totalRows: rows.length,
+          inserted,
+          updated,
+          skipped,
+          uploadedBy,
+          mandals: Array.from(mandalsSet)
+        }
+      });
+      await audit.save();
+    } catch (e) {
+      console.warn('[CSV Sync] Audit log save failed:', e.message);
+    }
 
     return {
       success: true,
       totalRows: rows.length,
       inserted,
       updated,
+      skipped,
+      errors: errors.length > 0 ? errors : undefined,
       mandals: Array.from(mandalsSet),
       totalGrievances: await Grievance.countDocuments(),
-      message: `Successfully synchronized ${rows.length} PGRS records (${inserted} added, ${updated} updated).`
+      message: `Successfully synchronized ${rows.length} PGRS records (${inserted} added, ${updated} updated${skipped > 0 ? `, ${skipped} skipped` : ''}).`
     };
   }
 };

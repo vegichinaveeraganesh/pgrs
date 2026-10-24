@@ -28,7 +28,23 @@ router.use('/v1/settings', settingsRoutes);
 
 const upload = require('../middleware/upload');
 const csvSyncService = require('../services/csv-sync.service');
+const resetAndSeed = require('../utils/reset-db');
 const fs = require('fs');
+
+// ─── Admin: Reset Database ───────────────────────────────────────────
+router.post('/v1/admin/reset-db', async (req, res, next) => {
+  try {
+    console.log('[Admin] Database reset requested...');
+    const result = await resetAndSeed();
+    res.json({
+      success: true,
+      message: 'Database reset and seeded successfully. All users have email+password login (no OTP). Roles and permissions are active.',
+      data: result
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // PGRS Integration Endpoint
 router.post('/v1/integrations/pgrs/sync', async (req, res, next) => {
