@@ -48,90 +48,318 @@
     <!-- Right: Login Form Panel -->
     <div class="login-form-panel">
       <div class="form-panel-inner">
-        <div class="form-header-block">
-          <h2 class="form-main-title">Official Portal Sign In</h2>
-          <p class="form-main-subtitle">Enter your divisional administrative credentials to proceed</p>
+        <!-- Auth Mode Switch Tabs -->
+        <div class="auth-tabs-nav">
+          <button
+            type="button"
+            class="auth-tab-btn"
+            [class.active]="authMode() === 'login'"
+            (click)="authMode.set('login')"
+          >
+            <svg lucideLogIn [size]="15" [strokeWidth]="2"></svg>
+            <span>Sign In</span>
+          </button>
+          <button
+            type="button"
+            class="auth-tab-btn"
+            [class.active]="authMode() === 'register'"
+            (click)="authMode.set('register')"
+          >
+            <svg lucideUserPlus [size]="15" [strokeWidth]="2"></svg>
+            <span>Register Account</span>
+          </button>
+          @if (authMode() === 'verify') {
+            <button
+              type="button"
+              class="auth-tab-btn active verify-active-tab"
+            >
+              <svg lucideKeyRound [size]="15" [strokeWidth]="2"></svg>
+              <span>Validate Email</span>
+            </button>
+          }
         </div>
 
-        <form (submit)="onLogin(); $event.preventDefault()" class="saas-login-form">
-          <div class="form-group-field">
-            <label class="field-label" for="email">Official Email Address</label>
-            <div class="field-input-box">
-              <svg lucideMail [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
-              <input
-                type="email"
-                id="email"
-                class="field-input"
-                placeholder="name@bhimili.gov.in"
-                [ngModel]="email()"
-                (ngModelChange)="email.set($event)"
-                name="email"
-                autocomplete="email"
-                data-testid="login-email-input"
-              />
-            </div>
+        <!-- VIEW 1: SIGN IN -->
+        @if (authMode() === 'login') {
+          <div class="form-header-block">
+            <h2 class="form-main-title">Official Portal Sign In</h2>
+            <p class="form-main-subtitle">Enter your divisional administrative credentials to proceed</p>
           </div>
 
-          <div class="form-group-field">
-            <label class="field-label" for="password">Password</label>
-            <div class="field-input-box">
-              <svg lucideLock [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
-              <input
-                [type]="showPassword() ? 'text' : 'password'"
-                id="password"
-                class="field-input"
-                placeholder="Enter your security password"
-                [ngModel]="password()"
-                (ngModelChange)="password.set($event)"
-                name="password"
-                autocomplete="current-password"
-                data-testid="login-password-input"
-              />
+          <form (submit)="onLogin(); $event.preventDefault()" class="saas-login-form">
+            <div class="form-group-field">
+              <label class="field-label" for="email">Official Email Address</label>
+              <div class="field-input-box">
+                <svg lucideMail [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                <input
+                  type="email"
+                  id="email"
+                  class="field-input"
+                  placeholder="name@bhimili.gov.in"
+                  [ngModel]="email()"
+                  (ngModelChange)="email.set($event)"
+                  name="email"
+                  autocomplete="email"
+                  data-testid="login-email-input"
+                />
+              </div>
+            </div>
+
+            <div class="form-group-field">
+              <label class="field-label" for="password">Password</label>
+              <div class="field-input-box">
+                <svg lucideLock [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  id="password"
+                  class="field-input"
+                  placeholder="Enter your security password"
+                  [ngModel]="password()"
+                  (ngModelChange)="password.set($event)"
+                  name="password"
+                  autocomplete="current-password"
+                  data-testid="login-password-input"
+                />
+                <button
+                  type="button"
+                  class="password-visibility-btn"
+                  (click)="togglePasswordVisibility()"
+                  title="Toggle password view"
+                >
+                  @if (showPassword()) {
+                    <svg lucideEyeOff [size]="16" [strokeWidth]="1.8"></svg>
+                  } @else {
+                    <svg lucideEye [size]="16" [strokeWidth]="1.8"></svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Test Credentials -->
+            <div class="quick-credentials-box">
+              <span class="quick-title">Quick Fill Demo Roles:</span>
+              <div class="chips-row">
+                <button type="button" class="demo-chip" (click)="fillDemo('rdo@bhimili.gov.in')">
+                  RDO Admin
+                </button>
+                <button type="button" class="demo-chip" (click)="fillDemo('tahsildar.bhimili@gov.in')">
+                  Tahsildar Bhimili
+                </button>
+                <button type="button" class="demo-chip" (click)="fillDemo('admin@bhimili.gov.in')">
+                  Super Admin
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg submit-login-btn"
+              [disabled]="isLoading()"
+              data-testid="login-submit-btn"
+            >
+              @if (isLoading()) {
+                <span>Authenticating...</span>
+              } @else {
+                <svg lucideLogIn [size]="16" [strokeWidth]="2"></svg>
+                <span>Sign In to Dashboard</span>
+              }
+            </button>
+          </form>
+        }
+
+        <!-- VIEW 2: REGISTER WITH EMAIL -->
+        @if (authMode() === 'register') {
+          <div class="form-header-block">
+            <h2 class="form-main-title">Officer Registration</h2>
+            <p class="form-main-subtitle">Register your official revenue divisional account with email validation</p>
+          </div>
+
+          <form (submit)="onRegister(); $event.preventDefault()" class="saas-login-form">
+            <div class="form-group-field">
+              <label class="field-label" for="regName">Full Name &amp; Designation *</label>
+              <div class="field-input-box">
+                <svg lucideUser [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                <input
+                  type="text"
+                  id="regName"
+                  class="field-input"
+                  placeholder="e.g. Sri K. Rama Rao, Tahsildar"
+                  [ngModel]="regName()"
+                  (ngModelChange)="regName.set($event)"
+                  name="regName"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-group-field">
+              <label class="field-label" for="regEmail">Email Address (for Validation) *</label>
+              <div class="field-input-box">
+                <svg lucideMail [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                <input
+                  type="email"
+                  id="regEmail"
+                  class="field-input"
+                  placeholder="officer@domain.com"
+                  [ngModel]="regEmail()"
+                  (ngModelChange)="regEmail.set($event)"
+                  name="regEmail"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group-field">
+                <label class="field-label" for="regPhone">Mobile Phone</label>
+                <div class="field-input-box">
+                  <svg lucidePhone [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                  <input
+                    type="tel"
+                    id="regPhone"
+                    class="field-input"
+                    placeholder="+91 94901 00000"
+                    [ngModel]="regPhone()"
+                    (ngModelChange)="regPhone.set($event)"
+                    name="regPhone"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group-field">
+                <label class="field-label" for="regMandal">Assigned Mandal</label>
+                <div class="field-input-box">
+                  <select
+                    id="regMandal"
+                    class="field-input select-field"
+                    [ngModel]="regMandal()"
+                    (ngModelChange)="regMandal.set($event)"
+                    name="regMandal"
+                  >
+                    <option value="Bheemunipatnam">Bheemunipatnam</option>
+                    <option value="Anandapuram">Anandapuram</option>
+                    <option value="Padmanabham">Padmanabham</option>
+                    <option value="Visakhapatnam Rural">Visakhapatnam Rural</option>
+                    <option value="Seethammadhara">Seethammadhara</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group-field">
+              <label class="field-label" for="regPassword">Security Password *</label>
+              <div class="field-input-box">
+                <svg lucideLock [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  id="regPassword"
+                  class="field-input"
+                  placeholder="Create a strong password"
+                  [ngModel]="regPassword()"
+                  (ngModelChange)="regPassword.set($event)"
+                  name="regPassword"
+                  required
+                />
+                <button
+                  type="button"
+                  class="password-visibility-btn"
+                  (click)="togglePasswordVisibility()"
+                >
+                  @if (showPassword()) {
+                    <svg lucideEyeOff [size]="16" [strokeWidth]="1.8"></svg>
+                  } @else {
+                    <svg lucideEye [size]="16" [strokeWidth]="1.8"></svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg submit-login-btn"
+              [disabled]="isLoading()"
+            >
+              @if (isLoading()) {
+                <span>Registering Account...</span>
+              } @else {
+                <svg lucideUserPlus [size]="16" [strokeWidth]="2"></svg>
+                <span>Register &amp; Send Verification Code</span>
+              }
+            </button>
+          </form>
+        }
+
+        <!-- VIEW 3: VALIDATE EMAIL WITH CODE -->
+        @if (authMode() === 'verify') {
+          <div class="form-header-block">
+            <h2 class="form-main-title">Validate Email Address</h2>
+            <p class="form-main-subtitle">
+              We generated a 6-digit verification code for
+              <strong class="highlight-email">{{ verifyEmailAddress() }}</strong>
+            </p>
+          </div>
+
+          @if (generatedDemoCode()) {
+            <div class="demo-otp-banner">
+              <span class="otp-badge">Validation Code Generated:</span>
+              <strong class="otp-number">{{ generatedDemoCode() }}</strong>
+              <span class="otp-hint">(Entered automatically for immediate sign-in)</span>
+            </div>
+          }
+
+          <form (submit)="onVerifyCode(); $event.preventDefault()" class="saas-login-form">
+            <div class="form-group-field">
+              <label class="field-label" for="verifyCode">Enter 6-Digit Email Validation Code *</label>
+              <div class="field-input-box">
+                <svg lucideKeyRound [size]="16" [strokeWidth]="1.8" class="field-icon"></svg>
+                <input
+                  type="text"
+                  id="verifyCode"
+                  class="field-input code-input"
+                  placeholder="e.g. 123456"
+                  maxlength="6"
+                  [ngModel]="verifyCode()"
+                  (ngModelChange)="verifyCode.set($event)"
+                  name="verifyCode"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="verify-actions-row">
               <button
                 type="button"
-                class="password-visibility-btn"
-                (click)="togglePasswordVisibility()"
-                title="Toggle password view"
+                class="btn btn-sm btn-ghost"
+                (click)="onResendCode()"
+                [disabled]="isLoading()"
               >
-                @if (showPassword()) {
-                  <svg lucideEyeOff [size]="16" [strokeWidth]="1.8"></svg>
-                } @else {
-                  <svg lucideEye [size]="16" [strokeWidth]="1.8"></svg>
-                }
+                <svg lucideRotateCcw [size]="13" [strokeWidth]="2"></svg>
+                <span>Resend Code</span>
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-sm btn-ghost"
+                (click)="authMode.set('login')"
+              >
+                <span>Return to Sign In</span>
               </button>
             </div>
-          </div>
 
-          <!-- Quick Test Credentials -->
-          <div class="quick-credentials-box">
-            <span class="quick-title">Quick Fill Demo Roles:</span>
-            <div class="chips-row">
-              <button type="button" class="demo-chip" (click)="fillDemo('rdo@bhimili.gov.in')">
-                RDO Admin
-              </button>
-              <button type="button" class="demo-chip" (click)="fillDemo('tahsildar.bhimili@gov.in')">
-                Tahsildar Bhimili
-              </button>
-              <button type="button" class="demo-chip" (click)="fillDemo('admin@bhimili.gov.in')">
-                Super Admin
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            class="btn btn-primary btn-lg submit-login-btn"
-            [disabled]="isLoading()"
-            data-testid="login-submit-btn"
-          >
-            @if (isLoading()) {
-              <span>Authenticating...</span>
-            } @else {
-              <svg lucideLogIn [size]="16" [strokeWidth]="2"></svg>
-              <span>Sign In to Dashboard</span>
-            }
-          </button>
-        </form>
+            <button
+              type="submit"
+              class="btn btn-success btn-lg submit-login-btn"
+              [disabled]="isLoading()"
+            >
+              @if (isLoading()) {
+                <span>Validating Email...</span>
+              } @else {
+                <svg lucideCheckCircle2 [size]="16" [strokeWidth]="2"></svg>
+                <span>Validate &amp; Launch Dashboard</span>
+              }
+            </button>
+          </form>
+        }
 
         <div class="form-footer-link">
           <a routerLink="/tracking" class="public-tracking-link">

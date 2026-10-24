@@ -24,7 +24,11 @@ import {
   LucideFileDown,
   LucideMapPin,
   LucideShieldCheck,
-  LucideChartNoAxesCombined
+  LucideChartNoAxesCombined,
+  LucideUpload,
+  LucideFileSpreadsheet,
+  LucideX,
+  LucideSparkles
 } from '@lucide/angular';
 
 @Component({
@@ -48,7 +52,11 @@ import {
     LucideFileDown,
     LucideMapPin,
     LucideShieldCheck,
-    LucideChartNoAxesCombined
+    LucideChartNoAxesCombined,
+    LucideUpload,
+    LucideFileSpreadsheet,
+    LucideX,
+    LucideSparkles
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -62,6 +70,12 @@ export class DashboardComponent implements OnInit {
   public messages = signal<NotificationMessage[]>([]);
   public isLoading = signal<boolean>(false);
   public isSyncing = signal<boolean>(false);
+
+  // CSV Direct Upload Signals
+  public csvModalOpen = signal<boolean>(false);
+  public selectedCsvFile = signal<File | null>(null);
+  public csvFileName = signal<string>('');
+  public csvSyncing = signal<boolean>(false);
 
   // Filter signals
   public filterSearch = signal<string>('');
@@ -184,6 +198,46 @@ export class DashboardComponent implements OnInit {
   onGrievanceCreated() {
     this.createModalOpen.set(false);
     this.loadAll();
+  }
+
+  openCsvModal() {
+    this.selectedCsvFile.set(null);
+    this.csvFileName.set('');
+    this.csvModalOpen.set(true);
+  }
+
+  closeCsvModal() {
+    this.csvModalOpen.set(false);
+  }
+
+  onCsvFileSelected(event: any) {
+    const file = event.target?.files?.[0];
+    if (file) {
+      this.selectedCsvFile.set(file);
+      this.csvFileName.set(file.name);
+    }
+  }
+
+  onUploadCsvFile() {
+    const file = this.selectedCsvFile();
+    if (!file) {
+      this.toast.error('Please choose a CSV file exported from PGRS');
+      return;
+    }
+
+    this.csvSyncing.set(true);
+    this.api.uploadPgrsCsv(file).subscribe({
+      next: res => {
+        this.csvSyncing.set(false);
+        this.toast.success(res.message || 'PGRS CSV synced successfully!');
+        this.closeCsvModal();
+        this.loadAll();
+      },
+      error: err => {
+        this.csvSyncing.set(false);
+        this.toast.error(err.error?.message || 'Failed to sync CSV data');
+      }
+    });
   }
 
   exportCsv() {

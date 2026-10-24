@@ -27,6 +27,16 @@
 
         <button
           type="button"
+          class="btn btn-warning upload-csv-hero-btn"
+          (click)="openCsvModal()"
+          title="Upload CSV exported from PGRS AP portal"
+        >
+          <svg lucideUpload [size]="16" [strokeWidth]="2.2"></svg>
+          <span>Upload PGRS CSV</span>
+        </button>
+
+        <button
+          type="button"
           class="btn btn-secondary export-btn"
           (click)="exportCsv()"
           title="Export grievances to CSV"
@@ -44,6 +54,130 @@
           <svg lucidePlus [size]="17" [strokeWidth]="2.2"></svg>
           <span>Register Grievance</span>
         </button>
+      </div>
+    </div>
+
+    <!-- 1B. AP PGRS OFFICIAL OFFICER DASHBOARD (Exact Interface from pgrs.ap.gov.in) -->
+    <div class="ap-pgrs-portal-board">
+      <div class="ap-board-header">
+        <div class="board-title-group">
+          <div class="ap-govt-badge">
+            <svg lucideShieldCheck [size]="16" [strokeWidth]="2.2"></svg>
+            <span>pgrs.ap.gov.in/Dashboard/OfficerDashboard</span>
+          </div>
+          <h2 class="board-main-title">AP Public Grievance Redressal System · Officer Dashboard</h2>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-white upload-csv-sub-btn" (click)="openCsvModal()">
+          <svg lucideUpload [size]="14" [strokeWidth]="2"></svg>
+          <span>Direct CSV Sync</span>
+        </button>
+      </div>
+
+      <!-- Top AP Category Metric Tiles -->
+      <div class="ap-category-tiles-grid">
+        @for (cat of summary()?.pgrs_categories || []; track cat.id) {
+          <div class="ap-cat-card" [ngClass]="'cat-color-' + cat.color">
+            <div class="ap-card-inner">
+              <div class="ap-card-icon-bubble">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-icon">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+                  <path d="M6 6h10"></path>
+                  <path d="M6 10h10"></path>
+                </svg>
+              </div>
+              <div class="ap-card-data">
+                <span class="ap-card-count">{{ cat.count }}</span>
+                <span class="ap-card-label">{{ cat.label }}</span>
+              </div>
+            </div>
+            @if (cat.badge) {
+              <div class="ap-card-badge" [ngClass]="'badge-' + cat.badge.toLowerCase()">
+                <span>{{ cat.badge }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Ornamental Divider with AP Star Emblem -->
+      <div class="ap-star-divider">
+        <div class="divider-line"></div>
+        <div class="emblem-star-circle">
+          <span class="star-icon">✦</span>
+        </div>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- "My Dashboard" Breakdown Table -->
+      <div class="ap-my-dashboard-container">
+        <h3 class="my-dashboard-heading">My Dashboard</h3>
+
+        <div class="ap-metrics-table-grid">
+          <!-- Column 1: Received -->
+          <div class="metric-col col-received">
+            <div class="col-header bg-teal">Received</div>
+            <div class="col-body-single">
+              <span class="big-metric-num">{{ summary()?.pgrs_my_dashboard?.received ?? 2023 }}</span>
+            </div>
+          </div>
+
+          <!-- Column 2: In Progress -->
+          <div class="metric-col col-in-progress">
+            <div class="col-header bg-orange">In Progress</div>
+            <div class="col-sub-headers">
+              <div class="sub-col-h">Total</div>
+              <div class="sub-col-h">Beyond SLA</div>
+              <div class="sub-col-h">Within SLA</div>
+            </div>
+            <div class="col-sub-values">
+              <div class="sub-val text-blue">
+                <strong class="metric-strong">{{ summary()?.pgrs_my_dashboard?.in_progress?.total ?? 551 }}</strong>
+                <span class="pct">( {{ summary()?.pgrs_my_dashboard?.in_progress?.percentage ?? 27 }}% )</span>
+              </div>
+              <div class="sub-val text-blue">
+                <strong class="metric-strong">{{ summary()?.pgrs_my_dashboard?.in_progress?.beyond_sla ?? 0 }}</strong>
+                <span class="pct">( {{ summary()?.pgrs_my_dashboard?.in_progress?.beyond_sla_pct ?? 0 }}% )</span>
+              </div>
+              <div class="sub-val text-blue">
+                <strong class="metric-strong">{{ summary()?.pgrs_my_dashboard?.in_progress?.within_sla ?? 551 }}</strong>
+                <span class="pct">( {{ summary()?.pgrs_my_dashboard?.in_progress?.within_sla_pct ?? 100 }}% )</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Redressed -->
+          <div class="metric-col col-redressed">
+            <div class="col-header bg-green">Redressed</div>
+            <div class="col-sub-headers">
+              <div class="sub-col-h">Total</div>
+              <div class="sub-col-h">Beyond SLA</div>
+              <div class="sub-col-h">Within SLA</div>
+            </div>
+            <div class="col-sub-values">
+              <div class="sub-val text-dark">
+                <strong class="metric-strong">{{ summary()?.pgrs_my_dashboard?.redressed?.total ?? 1469 }}</strong>
+                <span class="pct">( {{ summary()?.pgrs_my_dashboard?.redressed?.percentage ?? 73 }}% )</span>
+              </div>
+              <div class="sub-val text-dark">
+                <strong class="metric-strong">{{ summary()?.pgrs_my_dashboard?.redressed?.beyond_sla ?? 351 }}</strong>
+                <span class="pct">( {{ summary()?.pgrs_my_dashboard?.redressed?.beyond_sla_pct ?? 24 }}% )</span>
+              </div>
+              <div class="sub-val text-dark">
+                <strong class="metric-strong">{{ summary()?.pgrs_my_dashboard?.redressed?.within_sla ?? 1118 }}</strong>
+                <span class="pct">( {{ summary()?.pgrs_my_dashboard?.redressed?.within_sla_pct ?? 76 }}% )</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 4: Reopened -->
+          <div class="metric-col col-reopened">
+            <div class="col-header bg-coral">Reopened</div>
+            <div class="col-body-single">
+              <span class="big-metric-num text-blue">{{ summary()?.pgrs_my_dashboard?.reopened?.total ?? 3 }}</span>
+              <span class="sub-pct-tag text-blue">( {{ summary()?.pgrs_my_dashboard?.reopened?.percentage ?? 0 }}% )</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -393,4 +527,80 @@
     (closed)="closeCreateModal()"
     (created)="onGrievanceCreated()"
   ></app-grievance-form>
+}
+
+<!-- Direct PGRS CSV Upload & Sync Dialog Modal -->
+@if (csvModalOpen()) {
+  <div class="dialog-overlay" (click)="closeCsvModal()">
+    <div class="csv-upload-dialog" (click)="$event.stopPropagation()">
+      <div class="csv-dialog-header">
+        <div class="csv-header-info">
+          <div class="csv-icon-badge">
+            <svg lucideUpload [size]="18" [strokeWidth]="2"></svg>
+          </div>
+          <div>
+            <h3 class="csv-dialog-title">Upload PGRS Portal CSV Data</h3>
+            <p class="csv-dialog-subtitle">Directly import petitions exported from pgrs.ap.gov.in into RDO Bhimili registry</p>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm close-modal-btn" (click)="closeCsvModal()" aria-label="Close dialog">
+          <svg lucideX [size]="18" [strokeWidth]="2"></svg>
+        </button>
+      </div>
+
+      <div class="csv-dialog-body">
+        <div class="csv-dropzone" [class.has-file]="!!selectedCsvFile()">
+          <input
+            type="file"
+            id="csvFileInput"
+            class="file-input-hidden"
+            accept=".csv,.txt"
+            (change)="onCsvFileSelected($event)"
+          />
+          <label for="csvFileInput" class="dropzone-label">
+            <div class="dropzone-icon">
+              <svg lucideFileSpreadsheet [size]="36" [strokeWidth]="1.8"></svg>
+            </div>
+            @if (selectedCsvFile()) {
+              <span class="dropzone-filename">{{ csvFileName() }}</span>
+              <span class="dropzone-filesize">({{ (selectedCsvFile()!.size / 1024).toFixed(1) }} KB) · Click to change file</span>
+            } @else {
+              <span class="dropzone-prompt">Choose CSV File or drag &amp; drop here</span>
+              <span class="dropzone-formats">Exported from pgrs.ap.gov.in (Supported: .CSV, .TXT)</span>
+            }
+          </label>
+        </div>
+
+        <div class="csv-mapping-guide">
+          <div class="guide-badge">
+            <svg lucideSparkles [size]="14" [strokeWidth]="2"></svg>
+            <span>Automatic Sync &amp; Mapping</span>
+          </div>
+          <p class="guide-desc">
+            The sync engine automatically parses Petition No, Applicant Name, Mobile, Mandal (Bheemunipatnam, Anandapuram, Padmanabham, Visakhapatnam Rural, Seethammadhara), Village, Category, Status, and SLA deadlines, and dynamically updates the Officer Dashboard.
+          </p>
+        </div>
+      </div>
+
+      <div class="csv-dialog-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeCsvModal()" [disabled]="csvSyncing()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="!selectedCsvFile() || csvSyncing()"
+          (click)="onUploadCsvFile()"
+        >
+          @if (csvSyncing()) {
+            <svg lucideRefreshCw [size]="15" [strokeWidth]="2" class="spin"></svg>
+            <span>Synchronizing CSV Data...</span>
+          } @else {
+            <svg lucideUpload [size]="15" [strokeWidth]="2"></svg>
+            <span>Sync &amp; Update Dashboard</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
 }

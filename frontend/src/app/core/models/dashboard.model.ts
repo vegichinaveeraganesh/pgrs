@@ -1,6 +1,39 @@
 import { Grievance, GrievanceStage } from './grievance.model';
 import { NotificationMessage } from './notification.model';
 
+export interface PgrsCategoryCard {
+  id: string;
+  label: string;
+  count: number;
+  badge?: string | null;
+  color: string;
+  icon?: string;
+}
+
+export interface PgrsMyDashboardStats {
+  received: number;
+  in_progress: {
+    total: number;
+    percentage: number;
+    beyond_sla: number;
+    beyond_sla_pct: number;
+    within_sla: number;
+    within_sla_pct: number;
+  };
+  redressed: {
+    total: number;
+    percentage: number;
+    beyond_sla: number;
+    beyond_sla_pct: number;
+    within_sla: number;
+    within_sla_pct: number;
+  };
+  reopened: {
+    total: number;
+    percentage: number;
+  };
+}
+
 export interface DashboardSummary {
   total: number;
   active: number;
@@ -15,4 +48,6 @@ export interface DashboardSummary {
   stage_labels: Record<GrievanceStage, string>;
   beyond_sla_list: Grievance[];
   recent_messages: NotificationMessage[];
+  pgrs_categories?: PgrsCategoryCard[];
+  pgrs_my_dashboard?: PgrsMyDashboardStats;
 }

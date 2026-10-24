@@ -25,13 +25,18 @@ const fileFilter = (req, file, cb) => {
     'application/pdf',
     'image/jpeg',
     'image/png',
-    'image/webp'
+    'image/webp',
+    'text/csv',
+    'text/plain',
+    'application/vnd.ms-excel',
+    'application/octet-stream'
   ];
 
-  if (allowedMimeTypes.includes(file.mimetype)) {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowedMimeTypes.includes(file.mimetype) || ext === '.csv' || ext === '.txt') {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only PDF and JPEG/PNG/WebP image files are allowed.'));
+    cb(new Error('Invalid file type. Allowed files: PDF, JPEG/PNG/WebP, and CSV.'));
   }
 };
 

@@ -29,6 +29,24 @@ export class AuthService {
     );
   }
 
+  register(data: { name: string; email: string; password: string; phone?: string; designation?: string; mandal?: string; role?: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/register`, data);
+  }
+
+  verifyEmail(data: { email: string; code: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/verify-email`, data).pipe(
+      tap(res => {
+        if (res.success && res.accessToken) {
+          this.setSession(res);
+        }
+      })
+    );
+  }
+
+  resendVerification(email: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/resend-verification`, { email });
+  }
+
   logout() {
     localStorage.removeItem('pgrs_token');
     localStorage.removeItem('pgrs_refresh_token');

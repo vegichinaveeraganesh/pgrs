@@ -713,3 +713,536 @@
   color: var(--text-muted, #64748B);
   font-size: 0.85rem;
 }
+
+/* ========================================================
+   AP PGRS OFFICER DASHBOARD (pgrs.ap.gov.in Exact Interface)
+   ======================================================== */
+.ap-pgrs-portal-board {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+}
+
+.ap-board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.ap-govt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0D9488;
+  background: #F0FDFA;
+  border: 1px solid #CCFBF1;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-family: monospace;
+  margin-bottom: 0.35rem;
+}
+
+.board-main-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+.upload-csv-sub-btn {
+  background: #1E293B;
+  color: #FFFFFF;
+  border: 1px solid #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  transition: all 120ms ease;
+
+  &:hover {
+    background: #0F172A;
+  }
+}
+
+/* Category Metric Tiles Grid */
+.ap-category-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 0.85rem;
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.ap-cat-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 1.15rem 1rem;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Colors from AP Portal */
+  &.cat-color-orange {
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  }
+  &.cat-color-green {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  }
+  &.cat-color-navy {
+    background: linear-gradient(135deg, #334155 0%, #1E293B 100%);
+  }
+  &.cat-color-purple {
+    background: linear-gradient(135deg, #A855F7 0%, #7E22CE 100%);
+  }
+  &.cat-color-indigo {
+    background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+  }
+  &.cat-color-amber {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  }
+  &.cat-color-blue {
+    background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+  }
+  &.cat-color-crimson {
+    background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%);
+  }
+  &.cat-color-teal {
+    background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);
+  }
+  &.cat-color-sky {
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  }
+}
+
+.ap-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.ap-card-icon-bubble {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .doc-icon {
+    width: 22px;
+    height: 22px;
+    stroke: #FFFFFF;
+  }
+}
+
+.ap-card-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.ap-card-count {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #FFFFFF;
+}
+
+.ap-card-label {
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+/* Angled Card Badges */
+.ap-card-badge {
+  position: absolute;
+  top: 8px;
+  right: -24px;
+  transform: rotate(45deg);
+  width: 90px;
+  text-align: center;
+  padding: 0.15rem 0;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+  &.badge-priority {
+    background: #DC2626;
+    color: #FFFFFF;
+  }
+  &.badge-important {
+    background: #E11D48;
+    color: #FFFFFF;
+  }
+  &.badge-new {
+    background: #FACC15;
+    color: #854D0E;
+  }
+}
+
+/* Ornamental Star Divider */
+.ap-star-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem 0 1.5rem;
+  gap: 1rem;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #CBD5E1 30%, #CBD5E1 70%, transparent);
+}
+
+.emblem-star-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px dashed #0D9488;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F0FDFA;
+
+  .star-icon {
+    color: #0D9488;
+    font-size: 0.95rem;
+  }
+}
+
+/* "My Dashboard" Section */
+.ap-my-dashboard-container {
+  margin-top: 1rem;
+}
+
+.my-dashboard-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1E293B;
+  font-family: inherit;
+  margin: 0 0 1rem;
+}
+
+.ap-metrics-table-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #FFFFFF;
+
+  @media (min-width: 900px) {
+    grid-template-columns: 1.1fr 2.5fr 2.5fr 1.1fr;
+    gap: 0;
+  }
+}
+
+.metric-col {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #E2E8F0;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.col-header {
+  padding: 0.65rem 1rem;
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+
+  &.bg-teal {
+    background: #177199;
+  }
+  &.bg-orange {
+    background: #e88024;
+  }
+  &.bg-green {
+    background: #1b8e2d;
+  }
+  &.bg-coral {
+    background: #e05260;
+  }
+}
+
+.col-body-single {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  background: #FFFFFF;
+
+  .big-metric-num {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #1E293B;
+  }
+
+  .text-blue {
+    color: #0284C7;
+  }
+
+  .sub-pct-tag {
+    font-size: 0.825rem;
+    font-weight: 600;
+    margin-top: 0.2rem;
+  }
+}
+
+.col-sub-headers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+
+  .sub-col-h {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    text-align: center;
+    border-right: 1px solid #E2E8F0;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+}
+
+.col-sub-values {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #FFFFFF;
+
+  .sub-val {
+    padding: 1.25rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #E2E8F0;
+
+    &:last-child {
+      border-right: none;
+    }
+
+    .metric-strong {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .pct {
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 0.25rem;
+    }
+
+    &.text-blue {
+      color: #0284C7;
+    }
+
+    &.text-dark {
+      color: #1E293B;
+    }
+  }
+}
+
+/* ========================================================
+   CSV UPLOAD MODAL DIALOG
+   ======================================================== */
+.csv-upload-dialog {
+  max-width: 580px;
+  width: 95%;
+  background: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+  animation: modalScaleIn 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.csv-dialog-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.csv-header-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.csv-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #EFF6FF;
+  color: #2563EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.csv-dialog-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.csv-dialog-subtitle {
+  font-size: 0.775rem;
+  color: #64748B;
+  margin: 0.15rem 0 0;
+}
+
+.csv-dialog-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.csv-dropzone {
+  border: 2px dashed #CBD5E1;
+  border-radius: 14px;
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  background: #F8FAFC;
+  transition: all 150ms ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #2563EB;
+    background: #EFF6FF;
+  }
+
+  &.has-file {
+    border-color: #10B981;
+    background: #ECFDF5;
+  }
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.dropzone-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+
+  .dropzone-icon {
+    color: #64748B;
+    margin-bottom: 0.25rem;
+  }
+
+  .dropzone-prompt {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1E293B;
+  }
+
+  .dropzone-formats {
+    font-size: 0.75rem;
+    color: #64748B;
+  }
+
+  .dropzone-filename {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #065F46;
+  }
+
+  .dropzone-filesize {
+    font-size: 0.75rem;
+    color: #047857;
+  }
+}
+
+.csv-mapping-guide {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+
+  .guide-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.725rem;
+    font-weight: 700;
+    color: #2563EB;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+
+  .guide-desc {
+    font-size: 0.775rem;
+    color: #475569;
+    line-height: 1.45;
+    margin: 0;
+  }
+}
+
+.csv-dialog-footer {
+  padding: 1rem 1.5rem;
+  background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+

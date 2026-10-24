@@ -120,6 +120,16 @@ export class ApiService {
     return this.http.post<{ status: string; message: string; totalRecords: number }>(`${this.baseUrl}/pgrs/sync`, {});
   }
 
+  uploadPgrsCsv(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.baseUrl}/v1/integrations/pgrs/upload-csv`, formData);
+  }
+
+  uploadPgrsCsvText(csvText: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/v1/integrations/pgrs/upload-csv`, { csv: csvText });
+  }
+
   // Public Tracking
   track(id: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/v1/public/track/${id}`);

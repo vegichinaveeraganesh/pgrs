@@ -15,6 +15,9 @@ const userSchema = new mongoose.Schema({
   mandal: { type: String, trim: true },
   village: { type: String, trim: true },
   active: { type: Boolean, default: true },
+  isEmailVerified: { type: Boolean, default: false },
+  verificationCode: { type: String, trim: true },
+  verificationExpires: { type: Date },
   lastLogin: { type: Date }
 }, {
   timestamps: true

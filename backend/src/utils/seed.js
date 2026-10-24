@@ -35,7 +35,8 @@ async function seedData() {
       passwordHash,
       role: 'super_admin',
       designation: 'System Administrator',
-      phone: '+91 94901 23000'
+      phone: '+91 94901 23000',
+      isEmailVerified: true
     },
     {
       name: 'Revenue Divisional Officer',
@@ -43,7 +44,8 @@ async function seedData() {
       passwordHash,
       role: 'rdo',
       designation: 'Revenue Divisional Officer, Bhimili',
-      phone: '+91 94901 23000'
+      phone: '+91 94901 23000',
+      isEmailVerified: true
     },
     {
       name: 'Smt. K. Lakshmi Prasanna',
@@ -52,7 +54,8 @@ async function seedData() {
       role: 'tahsildar',
       designation: 'Tahsildar, Bheemunipatnam',
       mandal: 'Bheemunipatnam',
-      phone: '+91 94901 23001'
+      phone: '+91 94901 23001',
+      isEmailVerified: true
     },
     {
       name: 'Sri M. Srinivasa Rao',
@@ -62,7 +65,8 @@ async function seedData() {
       designation: 'Village Revenue Officer',
       mandal: 'Bheemunipatnam',
       village: 'Tagarapuvalasa',
-      phone: '+91 94901 23102'
+      phone: '+91 94901 23102',
+      isEmailVerified: true
     },
     {
       name: 'PGRS Helpdesk Staff',
@@ -70,7 +74,8 @@ async function seedData() {
       passwordHash,
       role: 'staff',
       designation: 'PGRS Portal Operator',
-      phone: '+91 94901 23000'
+      phone: '+91 94901 23000',
+      isEmailVerified: true
     }
   ];
   await User.insertMany(users);
