@@ -29,7 +29,9 @@ router.use('/v1/settings', settingsRoutes);
 const upload = require('../middleware/upload');
 const csvSyncService = require('../services/csv-sync.service');
 const resetAndSeed = require('../utils/reset-db');
+const adminController = require('../controllers/admin.controller');
 const fs = require('fs');
+const { authenticate } = require('../middleware/auth');
 
 // ─── Admin: Reset Database ───────────────────────────────────────────
 router.post('/v1/admin/reset-db', async (req, res, next) => {
@@ -45,6 +47,12 @@ router.post('/v1/admin/reset-db', async (req, res, next) => {
     next(err);
   }
 });
+
+// ─── Admin: User Management ────────────────────────────────────────
+router.get('/v1/admin/users', authenticate, adminController.getAllUsers);
+router.put('/v1/admin/users/:id', authenticate, adminController.updateUser);
+router.delete('/v1/admin/users/:id', authenticate, adminController.deleteUser);
+
 
 // PGRS Integration Endpoint
 router.post('/v1/integrations/pgrs/sync', async (req, res, next) => {
