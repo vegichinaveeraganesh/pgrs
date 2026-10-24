@@ -81,6 +81,26 @@ export class ReportsComponent {
             downloadUrl: this.api.exportReportCsvUrl('Anandapuram')
           },
           {
+            id: 'rep-rural',
+            title: 'Visakhapatnam Rural Mandal Redressal Report',
+            description: `Audit report covering ${data?.mandalStats?.['Visakhapatnam Rural']?.total ?? 0} grievances in Visakhapatnam Rural Mandal.`,
+            type: 'mandal',
+            mandal: 'Visakhapatnam Rural',
+            created_at: new Date().toISOString(),
+            ownerName: 'Tahsildar Visakhapatnam Rural',
+            downloadUrl: this.api.exportReportCsvUrl('Visakhapatnam Rural')
+          },
+          {
+            id: 'rep-seethammadhara',
+            title: 'Seethammadhara Mandal Redressal Report',
+            description: `Audit report covering ${data?.mandalStats?.['Seethammadhara']?.total ?? 0} grievances in Seethammadhara Mandal.`,
+            type: 'mandal',
+            mandal: 'Seethammadhara',
+            created_at: new Date().toISOString(),
+            ownerName: 'Tahsildar Seethammadhara',
+            downloadUrl: this.api.exportReportCsvUrl('Seethammadhara')
+          },
+          {
             id: 'rep-sla',
             title: 'SLA Overdue & Escalation Report',
             description: `Compliance audit highlighting ${data?.totalOverdue ?? 0} grievances that exceeded the standard 15-day SLA timeline.`,

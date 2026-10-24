@@ -95,6 +95,18 @@ async function seedData() {
       code: 'PDM',
       tahsildarName: 'Sri B. Rama Krishna',
       tahsildarPhone: '+91 94901 23003'
+    },
+    {
+      name: 'Visakhapatnam Rural',
+      code: 'VSP-RUR',
+      tahsildarName: 'Sri K. Venkata Rao',
+      tahsildarPhone: '+91 94901 23004'
+    },
+    {
+      name: 'Seethammadhara',
+      code: 'STM',
+      tahsildarName: 'Smt. P. Sridevi',
+      tahsildarPhone: '+91 94901 23005'
     }
   ];
   await Mandal.insertMany(mandals);
@@ -203,6 +215,54 @@ async function seedData() {
       mandal: 'Padmanabham',
       village: 'Korada',
       assignedVillages: ['Korada']
+    },
+    // Officials for Visakhapatnam Rural
+    {
+      name: 'Sri K. Venkata Rao',
+      role: 'Tahsildar',
+      phone: '+91 94901 23004',
+      mandal: 'Visakhapatnam Rural',
+      email: 'tahsildar.rural@gov.in'
+    },
+    {
+      name: 'Sri S. Ramesh Babu',
+      role: 'VRO',
+      phone: '+91 94901 23401',
+      mandal: 'Visakhapatnam Rural',
+      village: 'Madhurawada',
+      assignedVillages: ['Madhurawada']
+    },
+    {
+      name: 'Smt. L. Nagamani',
+      role: 'VRO',
+      phone: '+91 94901 23402',
+      mandal: 'Visakhapatnam Rural',
+      village: 'Rushikonda',
+      assignedVillages: ['Rushikonda']
+    },
+    // Officials for Seethammadhara
+    {
+      name: 'Smt. P. Sridevi',
+      role: 'Tahsildar',
+      phone: '+91 94901 23005',
+      mandal: 'Seethammadhara',
+      email: 'tahsildar.seethammadhara@gov.in'
+    },
+    {
+      name: 'Sri V. Krishna Murthy',
+      role: 'VRO',
+      phone: '+91 94901 23501',
+      mandal: 'Seethammadhara',
+      village: 'Venkojipalem',
+      assignedVillages: ['Venkojipalem']
+    },
+    {
+      name: 'Smt. B. Padmavati',
+      role: 'VRO',
+      phone: '+91 94901 23502',
+      mandal: 'Seethammadhara',
+      village: 'Maddilapalem',
+      assignedVillages: ['Maddilapalem']
     }
   ];
   await Official.insertMany(officials);
@@ -218,7 +278,13 @@ async function seedData() {
     { name: 'Mamidilova', mandal: 'Anandapuram', vroName: 'Sri K. Trinadh', vroPhone: '+91 94901 23203' },
     { name: 'Padmanabham', mandal: 'Padmanabham', vroName: 'Sri G. Simhachalam', vroPhone: '+91 94901 23301' },
     { name: 'Nerellavalasa', mandal: 'Padmanabham', vroName: 'Smt. A. Jyothi', vroPhone: '+91 94901 23302' },
-    { name: 'Korada', mandal: 'Padmanabham', vroName: 'Sri T. Eswara Rao', vroPhone: '+91 94901 23303' }
+    { name: 'Korada', mandal: 'Padmanabham', vroName: 'Sri T. Eswara Rao', vroPhone: '+91 94901 23303' },
+    // Visakhapatnam Rural
+    { name: 'Madhurawada', mandal: 'Visakhapatnam Rural', vroName: 'Sri S. Ramesh Babu', vroPhone: '+91 94901 23401' },
+    { name: 'Rushikonda', mandal: 'Visakhapatnam Rural', vroName: 'Smt. L. Nagamani', vroPhone: '+91 94901 23402' },
+    // Seethammadhara
+    { name: 'Venkojipalem', mandal: 'Seethammadhara', vroName: 'Sri V. Krishna Murthy', vroPhone: '+91 94901 23501' },
+    { name: 'Maddilapalem', mandal: 'Seethammadhara', vroName: 'Smt. B. Padmavati', vroPhone: '+91 94901 23502' }
   ];
   await Village.insertMany(villages);
   console.log(`[Seed] Seeded ${villages.length} villages.`);

@@ -36,4 +36,10 @@ export const SLA_OPTIONS = [
   { value: 'resolved', label: 'Resolved' }
 ];
 
-export const MANDALS = ['Bheemunipatnam', 'Anandapuram', 'Padmanabham'];
+export const MANDALS = [
+  'Bheemunipatnam',
+  'Anandapuram',
+  'Padmanabham',
+  'Visakhapatnam Rural',
+  'Seethammadhara'
+];
