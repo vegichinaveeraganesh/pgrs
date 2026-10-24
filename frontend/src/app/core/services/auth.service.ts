@@ -14,7 +14,7 @@ export class AuthService {
   private readonly tokenSignal = signal<string | null>(localStorage.getItem('pgrs_token'));
 
   public readonly currentUser = this.currentUserSignal.asReadonly();
-  public readonly isAuthenticated = computed(() => !!this.currentUserSignal());
+  public readonly isAuthenticated = computed(() => !!this.currentUserSignal() && !!this.tokenSignal());
   public readonly userRole = computed(() => this.currentUserSignal()?.role || null);
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -63,7 +63,7 @@ export class AuthService {
     localStorage.removeItem('pgrs_user');
     this.currentUserSignal.set(null);
     this.tokenSignal.set(null);
-    this.router.navigate(['/']);
+    this.router.navigate(['/auth/login']);
   }
 
   getToken(): string | null {

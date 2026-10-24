@@ -10,47 +10,55 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
       {
-        path: 'overview',
-        loadComponent: () =>
-          import('./features/overview/overview.component').then(m => m.OverviewComponent)
-      },
-      {
-        path: 'workflow',
-        loadComponent: () =>
-          import('./features/workflow/workflow-pipeline.component').then(m => m.WorkflowPipelineComponent)
-      },
-      {
-        path: 'tracking',
-        loadComponent: () =>
-          import('./features/grievance-tracking/grievance-tracking.component').then(m => m.GrievanceTrackingComponent)
-      },
-      {
         path: 'auth/login',
         loadComponent: () =>
           import('./features/auth/login/login.component').then(m => m.LoginComponent)
       },
       {
+        path: 'overview',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/overview/overview.component').then(m => m.OverviewComponent)
+      },
+      {
+        path: 'workflow',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/workflow/workflow-pipeline.component').then(m => m.WorkflowPipelineComponent)
+      },
+      {
+        path: 'tracking',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/grievance-tracking/grievance-tracking.component').then(m => m.GrievanceTrackingComponent)
+      },
+      {
         path: 'dashboard',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
       {
         path: 'officials',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/officials/officials-directory/officials-directory.component').then(m => m.OfficialsDirectoryComponent)
       },
       {
         path: 'notifications',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/notifications/notifications.component').then(m => m.NotificationsComponent)
       },
       {
         path: 'sla-monitoring',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/sla-monitoring/sla-monitoring.component').then(m => m.SlaMonitoringComponent)
       },
       {
         path: 'reports',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/reports/reports.component').then(m => m.ReportsComponent)
       },
@@ -68,5 +76,5 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '**', redirectTo: 'overview' }
+  { path: '**', redirectTo: 'auth/login' }
 ];

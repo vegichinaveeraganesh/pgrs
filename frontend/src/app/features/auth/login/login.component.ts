@@ -57,6 +57,14 @@ export class LoginComponent {
   // Active view: 'login' | 'register' | 'verify' | 'set-password'
   public authMode = signal<'login' | 'register' | 'verify' | 'set-password'>('login');
 
+  constructor() {
+    if (this.auth.isAuthenticated()) {
+      const rawReturn = this.route.snapshot.queryParams['returnUrl'];
+      const returnUrl = (rawReturn && rawReturn !== '/' && rawReturn !== '/auth/login') ? rawReturn : '/overview';
+      this.router.navigateByUrl(returnUrl);
+    }
+  }
+
   // Login form
   public email = signal<string>('');
   public password = signal<string>('');
@@ -91,7 +99,8 @@ export class LoginComponent {
         this.isLoading.set(false);
         if (res.success) {
           this.toast.success(`Welcome, ${res.user.name}!`);
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+          const rawReturn = this.route.snapshot.queryParams['returnUrl'];
+          const returnUrl = (rawReturn && rawReturn !== '/' && rawReturn !== '/auth/login') ? rawReturn : '/overview';
           this.router.navigateByUrl(returnUrl);
         }
       },
@@ -180,7 +189,8 @@ export class LoginComponent {
         this.isLoading.set(false);
         if (res.success) {
           this.toast.success(`Welcome, ${res.user?.name}! Account ready.`);
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+          const rawReturn = this.route.snapshot.queryParams['returnUrl'];
+          const returnUrl = (rawReturn && rawReturn !== '/' && rawReturn !== '/auth/login') ? rawReturn : '/overview';
           this.router.navigateByUrl(returnUrl);
         }
       },
