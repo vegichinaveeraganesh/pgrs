@@ -8,21 +8,20 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
-// Helper to verify super admin role
-function ensureSuperAdmin(req, res, next) {
-  if (!req.user || req.user.role !== 'super_admin') {
-    return res.status(403).json({
-      success: false,
-      message: 'Insufficient permissions. Super admin required.'
-    });
-  }
-  next();
+function isAuthorizedAdmin(user) {
+  if (!user) return false;
+  return user.role === 'super_admin' || user.role === 'rdo';
 }
 
 /** GET /v1/admin/users */
 async function getAllUsers(req, res, next) {
   try {
-    await ensureSuperAdmin(req, res, async () => {});
+    if (!isAuthorizedAdmin(req.user)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Insufficient permissions. Super admin or RDO required.'
+      });
+    }
     const users = await User.find({})
       .select('-passwordHash') // exclude password hash from response
       .lean();
@@ -35,7 +34,12 @@ async function getAllUsers(req, res, next) {
 /** PUT /v1/admin/users/:id */
 async function updateUser(req, res, next) {
   try {
-    await ensureSuperAdmin(req, res, async () => {});
+    if (!isAuthorizedAdmin(req.user)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Insufficient permissions. Super admin or RDO required.'
+      });
+    }
     const { id } = req.params;
     const { name, email, phone, role, active, password } = req.body;
     const update = { name, email, phone, role, active };
@@ -58,7 +62,12 @@ async function updateUser(req, res, next) {
 /** DELETE /v1/admin/users/:id */
 async function deleteUser(req, res, next) {
   try {
-    await ensureSuperAdmin(req, res, async () => {});
+    if (!isAuthorizedAdmin(req.user)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Insufficient permissions. Super admin or RDO required.'
+      });
+    }
     const { id } = req.params;
     const deleted = await User.findByIdAndDelete(id);
     if (!deleted) {

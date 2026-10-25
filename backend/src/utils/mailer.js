@@ -8,26 +8,35 @@ const env = require('../config/env');
 
 let transporter = null;
 
+function isConfigured(str) {
+  if (!str) return false;
+  const s = str.trim().toLowerCase();
+  return s !== '' && !s.includes('your-email') && !s.includes('your-16-letter') && !s.includes('placeholder') && !s.includes('example.com');
+}
+
 function getTransporter() {
   if (transporter) return transporter;
 
-  if (env.smtpHost && env.smtpUser && env.smtpPass) {
+  const validUser = isConfigured(env.smtpUser) ? env.smtpUser : null;
+  const validPass = isConfigured(env.smtpPass) ? env.smtpPass : null;
+
+  if (env.smtpHost && validUser && validPass) {
     transporter = nodemailer.createTransport({
       host: env.smtpHost,
       port: parseInt(env.smtpPort, 10) || 587,
       secure: false,
       auth: {
-        user: env.smtpUser,
-        pass: env.smtpPass
+        user: validUser,
+        pass: validPass
       }
     });
-  } else if (env.smtpUser && env.smtpPass) {
+  } else if (validUser && validPass) {
     // Gmail shortcut
     transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: env.smtpUser,
-        pass: env.smtpPass
+        user: validUser,
+        pass: validPass
       }
     });
   }

@@ -78,6 +78,7 @@ export class SidebarComponent {
       group: 'Administration',
       items: [
         { path: '/officials', label: 'Officials Directory', icon: 'officials' },
+        { path: '/admin/users', label: 'User Accounts', icon: 'officials', badge: 'Admin' },
         { path: '/sla-monitoring', label: 'SLA Monitoring', icon: 'sla', badge: '15d' },
         { path: '/notifications', label: 'SMS & IVRS Logs', icon: 'notifications' }
       ]

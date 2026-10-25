@@ -90,7 +90,7 @@ const csvSyncService = {
         const row = rows[i];
 
         // Extract PGRS Number
-        let pgrsNo = findField(row, ['pgrs_no', 'grievance_no', 'grievance_id', 'petition_no', 'application_no', 'id']);
+        let pgrsNo = findField(row, ['grievance_no', 'pgrs_no', 'grievance_id', 'petition_no', 'application_no', 'id']);
         if (!pgrsNo) {
           pgrsNo = `PGRS-AP-2026-${10500 + i}`;
         }
@@ -100,11 +100,24 @@ const csvSyncService = {
         if (!applicantName) applicantName = `Citizen ${i + 1}`;
 
         // Extract Phone
-        let phone = findField(row, ['phone', 'mobile', 'mobile_no', 'contact_no', 'cell']);
+        let phone = findField(row, ['mobile_no', 'phone', 'mobile', 'contact_no', 'cell']);
         if (!phone) phone = '+91 94901 00000';
 
-        // Extract Mandal (normalize to known mandals if possible)
+        // Extract Address, Mandal & Village
+        let grievanceAddress = findField(row, ['grievance_address', 'address', 'location']);
         let mandalName = findField(row, ['mandal', 'mandal_name', 'taluk']);
+        let villageName = findField(row, ['village', 'village_name', 'ward', 'habitation']);
+
+        if (grievanceAddress && (!mandalName || !villageName)) {
+          const parts = grievanceAddress.split(',').map(p => p.trim());
+          if (parts.length >= 2 && !mandalName) {
+            mandalName = parts[1];
+          }
+          if (parts.length >= 3 && !villageName) {
+            villageName = parts[2].replace(/-\([RU]\)/i, '').trim();
+          }
+        }
+
         if (!mandalName) {
           mandalName = 'Bheemunipatnam';
         } else {
@@ -117,23 +130,28 @@ const csvSyncService = {
         }
         mandalsSet.add(mandalName);
 
-        // Extract Village
-        let villageName = findField(row, ['village', 'village_name', 'ward', 'habitation']);
         if (!villageName) villageName = mandalName;
 
-        // Extract Source Channel (CMO Grievances, PR, Sadassulu, etc.)
+        // Extract Source Channel
         let sourceChannel = findField(row, ['source', 'channel', 'scheme', 'petition_type', 'type']);
         if (!sourceChannel) sourceChannel = 'PGRS (Monday/Other Days)';
 
-        // Extract Category / Subject / Description
-        let category = findField(row, ['category', 'department', 'service_name', 'grievance_type']);
+        // Extract Category / Department
+        let category = findField(row, ['department', 'category', 'service_name', 'grievance_type']);
         if (!category) category = 'Revenue & Land Matters';
 
-        let subject = findField(row, ['subject', 'title', 'sub_category']);
+        // Extract Subject / Sub-Subject / Description
+        let subject = findField(row, ['subject', 'title']);
+        let subSubject = findField(row, ['sub_subject', 'subsubject', 'sub_category']);
+        if (!subject && subSubject) subject = subSubject;
         if (!subject) subject = `${category} Petition`;
 
         let description = findField(row, ['description', 'details', 'grievance_description', 'remarks']);
+        if (!description && subSubject) description = `${subject}: ${subSubject}`;
         if (!description) description = `Grievance submitted by ${applicantName} in ${villageName}, ${mandalName}. Early enquiry and redressal requested.`;
+
+        // Extract SLA days from CSV (e.g. "60", "75", "105")
+        let slaDays = parseInt(findField(row, ['sla']), 10) || 15;
 
         // Extract Status
         let statusStr = (findField(row, ['status', 'stage', 'current_status', 'redressal_status']) || '').toUpperCase();
@@ -157,13 +175,12 @@ const csvSyncService = {
         // Dates and SLA
         const now = new Date();
         let createdAt = now;
-        const regDateStr = findField(row, ['registered_date', 'application_date', 'received_date', 'date', 'created_at']);
+        const regDateStr = findField(row, ['date', 'registered_date', 'application_date', 'received_date', 'created_at']);
         if (regDateStr) {
           const parsed = new Date(regDateStr);
           if (!isNaN(parsed.getTime())) createdAt = parsed;
         }
 
-        const slaDays = 15;
         const slaDeadline = new Date(createdAt.getTime() + slaDays * 24 * 60 * 60 * 1000);
 
         // Map VRO and Tahsildar
@@ -183,7 +200,7 @@ const csvSyncService = {
         };
 
         const existingGrievance = await Grievance.findOne({ pgrs_no: pgrsNo });
-        const gist = gistService.generateGist({
+        const gist = gistService.generateDeterministicGist({
           applicant_name: applicantName,
           category,
           subject,
